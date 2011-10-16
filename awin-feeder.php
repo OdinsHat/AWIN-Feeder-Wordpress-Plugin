@@ -71,6 +71,49 @@ if(!class_exists("AwinFeeder")){
             return $awin_feeder_options;
         }
 
+        public function scProductBlock($atts, $content = null)
+        {
+            global $wpdb;
+            $table = $wpdb->prefix.'afeeder_products';
+            $sql = "SELECT * FROM $table";
+            $conditions = array();
+            $output = '';
+            
+            foreach($atts as $key => $val){
+                if($key == 'name'){
+                    $conditions[] = sprintf("%s LIKE '%%%s%%'", $key, $val);
+                }else if($key == 'brand' || $key == 'merchant'){
+                    $conditions[] = sprintf("%s = '%s'", $key, $val);
+                }
+            }
+            if(count($conditions) > 0){
+                $sql .= ' WHERE '.implode(' AND ', $conditions);
+            }
+            
+            if(isset($atts['offset'])){
+                $sql .= sprintf(' LIMIT %d,1', $atts['offset']);
+            }else{
+                $sql .= ' LIMIT 1';
+            }
+            $product = $wpdb->get_row($sql, OBJECT);
+
+            $description = $product->description;
+            if(strlen($content) > 0){
+                $description = $content;
+            }
+
+            
+            $output = sprintf('
+            <div id="awf-prod-%d class="aw-prod" style="padding:10px;">
+                <h4 class="prod-title">%s</h4>
+                <a href="%s" rel="nofollow"><img src="%s" alt="%s" class="alignleft" /></a>
+                <div class="prod-desc">%s</div>
+                <a rel="nofollow" href="%s"><img src="/wp-content/plugins/awin-feeder/images/shop-button.png" class="alignright" /></a>
+                <br style="clear:both;" />
+            </div>', $product->id, $product->name, $product->aw_link, $product->aw_thumb, $product->name, $description, $product->aw_link);
+            return $output;
+        }
+
         public function scProductGrid($atts, $content = null)
         {
             global $wpdb;
@@ -329,6 +372,7 @@ if(isset($awin_feeder)){
     add_action('activate_awin-feeder/awin-feeder.php', array(&$awin_feeder, 'init'));
     add_action('admin_head', array(&$awin_feeder, 'printDatatableJs'));
     add_shortcode('aw-prodgrid', array(&$awin_feeder, 'scProductGrid'));
+    add_shortcode('aw-prodblock', array(&$awin_feeder, 'scProductBlock'));
 }
 include_once dirname( __FILE__ ) . '/widgets/awinfeeder_random.php';
 
