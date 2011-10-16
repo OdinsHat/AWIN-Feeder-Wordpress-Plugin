@@ -106,11 +106,11 @@ if(!class_exists("AwinFeeder")){
             $output = sprintf('
             <div id="awf-prod-%d class="aw-prod" style="padding:10px;">
                 <h4 class="prod-title">%s</h4>
-                <a href="%s" rel="nofollow"><img src="%s" alt="%s" class="alignleft" /></a>
+                <a href="/hopo/%d" rel="nofollow"><img src="%s" alt="%s" class="alignleft" /></a>
                 <div class="prod-desc">%s</div>
-                <a rel="nofollow" href="%s"><img src="/wp-content/plugins/awin-feeder/images/shop-button.png" class="alignright" /></a>
+                <a rel="nofollow" href="/hopo/%d"><img src="/wp-content/plugins/awin-feeder/images/shop-button.png" class="alignright" /></a>
                 <br style="clear:both;" />
-            </div>', $product->id, $product->name, $product->aw_link, $product->aw_thumb, $product->name, $description, $product->aw_link);
+            </div>', $product->id, $product->name, $product->id, $product->aw_thumb, $product->name, $description, $product->id);
             return $output;
         }
 
@@ -156,7 +156,6 @@ if(!class_exists("AwinFeeder")){
             $rows = $wpdb->get_results($sql, OBJECT_K);
 
             $output = $this->_buildScOutput($rows, $col_count);
-            $output .= $sql;
 
             return $output;
         }
@@ -176,10 +175,10 @@ if(!class_exists("AwinFeeder")){
             foreach($rows as $row){
                 $output .= sprintf('
                 <td style="vertical-align:top;width:%s">
-                    <a rel="nofollow" href="%s"><img src="%s" alt="%s" /></a><br />
-                    %s
+                    <a rel="nofollow" href="/hopo/%s"><img src="%s" alt="%s" /></a><br />
+                    <a href="/hopo/%d" rel="nofollow">%s</a>
                 </td>
-                ', $width, $row->aw_link, $row->aw_thumb, $row->name, $row->name);
+                ', $width, $row->id, $row->aw_thumb, $row->name, $row->name);
                 $i++;
                 if($i % $col_count == 0){
                     $output .= '</tr><tr>';
@@ -319,6 +318,24 @@ if(!class_exists("AwinFeeder")){
 
         }
 
+        public function handleHop()
+        {
+            global $wpdb;
+
+            $request = $_SERVER['REQUEST_URI'];
+            $parts = explode('/', $request);
+
+            if($parts[1] == 'hopo'){
+                $id = $parts[2];
+                $table = $wpdb->prefix.'afeeder_products';
+                $sql = sprintf('SELECT * FROM %s WHERE id=%d LIMIT 1', $table, $id);
+                $rec = $wpdb->get_row($sql, OBJECT);
+                header("X-Robots-Tag: noindex, nofollow", true);
+                wp_redirect($rec->aw_link, 301);
+                die();
+            }
+        }
+
         public function printDatatableJs()
         {
             ?>
@@ -371,6 +388,8 @@ if(isset($awin_feeder)){
     add_action('admin_menu', 'SetupAwinFeeder');
     add_action('activate_awin-feeder/awin-feeder.php', array(&$awin_feeder, 'init'));
     add_action('admin_head', array(&$awin_feeder, 'printDatatableJs'));
+    add_action('init', array(&$awin_feeder, 'handleHop'));
+
     add_shortcode('aw-prodgrid', array(&$awin_feeder, 'scProductGrid'));
     add_shortcode('aw-prodblock', array(&$awin_feeder, 'scProductBlock'));
 }
