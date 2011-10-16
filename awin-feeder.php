@@ -80,6 +80,14 @@ if(!class_exists("AwinFeeder")){
             $col_count = 3;
             $limit = 9;
 
+            if(isset($atts['cols'])){
+                $col_count = $atts['cols'];
+            }
+
+            if(isset($atts['limit'])){
+                $limit = $atts['limit'];
+            }
+
             $conditions = array();
             $output = '';
             
