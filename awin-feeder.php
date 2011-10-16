@@ -71,6 +71,74 @@ if(!class_exists("AwinFeeder")){
             return $awin_feeder_options;
         }
 
+        public function scProductGrid($atts, $content = null)
+        {
+            global $wpdb;
+            $table = $wpdb->prefix.'afeeder_products';
+            $sql = "SELECT * FROM $table";
+
+            $col_count = 3;
+            $limit = 9;
+
+            $conditions = array();
+            $output = '';
+            
+            foreach($atts as $key => $val){
+                if($key == 'name'){
+                    $conditions[] = sprintf("%s LIKE '%%%s%%'", $key, $val);
+                }else if($key == 'brand' || $key == 'merchant'){
+                    $conditions[] = sprintf("%s = '%s'", $key, $val);
+                }
+            }
+            if(count($conditions) > 0){
+                $sql .= ' WHERE '.implode(' AND ', $conditions);
+            }
+            if(isset($atts['orderby'])){
+                $sql .= sprintf(' ORDER BY %s', $atts['orderby']);
+            }
+
+            if(isset($atts['dir'])){
+                $sql .= sprintf(' %s', $atts['dir']);
+            }
+
+            $sql .= sprintf(' LIMIT %d', $limit);
+            $rows = $wpdb->get_results($sql, OBJECT_K);
+
+            $output = $this->_buildScOutput($rows, $col_count);
+            $output .= $sql;
+
+            return $output;
+        }
+
+        private function _buildScOutput($rows, $col_count)
+        {
+            switch($col_count){
+                case(2):$width='50%';break;
+                case(3):$width='33%';break;
+                case(4):$width='25%';break;
+                default:$width='33%';
+            }
+            $output = '';
+            $output .= '<table class="awf-prod-grid">';
+            $output .= '<tr>';
+            $i = 0;
+            foreach($rows as $row){
+                $output .= sprintf('
+                <td style="vertical-align:top;width:%s">
+                    <a rel="nofollow" href="%s"><img src="%s" alt="%s" /></a><br />
+                    %s
+                </td>
+                ', $width, $row->aw_link, $row->aw_thumb, $row->name, $row->name);
+                $i++;
+                if($i % $col_count == 0){
+                    $output .= '</tr><tr>';
+                }
+            }
+            $output .= '</tr>';
+            $output .= '</table>';
+            return $output;
+        }
+
         public function insertProduct($data)
         {
             //product name,description,promotext,merchant,awin image,awin thumb,price,model_no,merchant category,awin category,awin deeplink</p>
@@ -212,9 +280,11 @@ if(!class_exists("AwinFeeder")){
                 };
 
                 // since 2.8 ajaxurl is always defined in the admin header and points to admin-ajax.php
+                /*
                 jQuery.post(ajaxurl, data, function(response) {
-                    alert('Got this from the server: ' + response);
+                    //alert('Got this from the server: ' + response);
                 });
+                */
             });
             </script>
 
@@ -250,6 +320,7 @@ if(isset($awin_feeder)){
     add_action('admin_menu', 'SetupAwinFeeder');
     add_action('activate_awin-feeder/awin-feeder.php', array(&$awin_feeder, 'init'));
     add_action('admin_head', array(&$awin_feeder, 'printDatatableJs'));
+    add_shortcode('aw-prodgrid', array(&$awin_feeder, 'scProductGrid'));
 }
 include_once dirname( __FILE__ ) . '/widgets/awinfeeder_random.php';
 
