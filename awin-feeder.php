@@ -224,7 +224,7 @@ if(!class_exists("AwinFeeder")){
             $sql = "SELECT * FROM $table";
 
             $rows = $wpdb->get_results($sql, OBJECT_K);
-            echo '<table><thead><tr><th>Name</th><th>Merchant</th><th>Brand</th><th>Price</th></tr></thead><tbody>';
+            echo '<table class="display" id="products-table"><thead><tr><th>Name</th><th>Merchant</th><th>Brand</th><th>Price</th></tr></thead><tbody>';
             foreach($rows as $row){
                 echo "<tr><td>$row->name</td><td>$row->merchant</td><td>$row->brand</td><td>$row->price</td></tr>";
             }
@@ -336,27 +336,15 @@ if(!class_exists("AwinFeeder")){
             }
         }
 
-        public function printDatatableJs()
+        public function plugin_scripts()
         {
-            ?>
+            wp_enqueue_script('jquery_datatables', plugins_url('js/jquery.dataTables.min.js',__FILE__));
+            wp_enqueue_script('products_js', plugins_url('js/products.js',__FILE__));
+        }
 
-            <script type="text/javascript">
-            jQuery(document).ready(function($) {
-                var data = {
-                    action: 'my_action',
-                    whatever: 1234
-                };
-
-                // since 2.8 ajaxurl is always defined in the admin header and points to admin-ajax.php
-                /*
-                jQuery.post(ajaxurl, data, function(response) {
-                    //alert('Got this from the server: ' + response);
-                });
-                */
-            });
-            </script>
-
-            <?php
+        public function plugin_styles()
+        {
+            wp_enqueue_style('products_css', plugins_url('css/products.css',__FILE__));
         }
 
     }
@@ -377,7 +365,7 @@ if (!function_exists("SetupAwinFeeder")) {
         }
         if (function_exists('add_menu_page')) {
             add_menu_page('AWIN Feeder', 'AWIN Feeder', 8, 'awin-feeder', array(&$awin_feeder, 'printAdminPage'));
-            add_submenu_page('awin-feeder', 'Products', 'Products', 8, 'awin-products', array(&$awin_feeder, 'printProductsList'));
+            $products_page = add_submenu_page('awin-feeder', 'Products', 'Products', 8, 'awin-products', array(&$awin_feeder, 'printProductsList'));
             add_submenu_page('awin-feeder', 'Upload', 'Upload', 8, 'awin-upload', array(&$awin_feeder, 'printUploadForm'));
         }
     }     
@@ -387,7 +375,8 @@ if(isset($awin_feeder)){
     //Actions & Filters
     add_action('admin_menu', 'SetupAwinFeeder');
     add_action('activate_awin-feeder/awin-feeder.php', array(&$awin_feeder, 'init'));
-    add_action('admin_head', array(&$awin_feeder, 'printDatatableJs'));
+    add_action('admin_print_scripts', array(&$awin_feeder, 'plugin_scripts'));
+    add_action('admin_print_styles', array(&$awin_feeder, 'plugin_styles'));
     add_action('init', array(&$awin_feeder, 'handleHop'));
 
     add_shortcode('aw-prodgrid', array(&$awin_feeder, 'scProductGrid'));
