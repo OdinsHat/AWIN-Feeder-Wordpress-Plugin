@@ -102,7 +102,6 @@ if(!class_exists("AwinFeeder")){
                 $description = $content;
             }
 
-            
             $output = sprintf('
             <div id="awf-prod-%d class="aw-prod" style="padding:10px;">
                 <h4 class="prod-title">%s</h4>
@@ -111,6 +110,7 @@ if(!class_exists("AwinFeeder")){
                 <a rel="nofollow" href="/hopo/%d"><img src="/wp-content/plugins/awin-feeder/images/shop-button.png" class="alignright" /></a>
                 <br style="clear:both;" />
             </div>', $product->id, $product->name, $product->id, $product->aw_thumb, $product->name, $description, $product->id);
+
             return $output;
         }
 
@@ -175,10 +175,10 @@ if(!class_exists("AwinFeeder")){
             foreach($rows as $row){
                 $output .= sprintf('
                 <td style="vertical-align:top;width:%s">
-                    <a rel="nofollow" href="/hopo/%s"><img src="%s" alt="%s" /></a><br />
+                    <a rel="nofollow" href="/hopo/%d"><img src="%s" alt="%s" /></a><br />
                     <a href="/hopo/%d" rel="nofollow">%s</a>
                 </td>
-                ', $width, $row->id, $row->aw_thumb, $row->name, $row->name);
+                ', $width, $row->id, $row->aw_thumb, $row->name, $row->id, $row->name);
                 $i++;
                 if($i % $col_count == 0){
                     $output .= '</tr><tr>';
