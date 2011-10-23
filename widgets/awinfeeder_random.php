@@ -22,7 +22,7 @@ class AwinFeeder_Random extends WP_Widget
             $limit = $instance['count'];
         }
         $table = $wpdb->prefix.'afeeder_products';
-        $sql = sprintf("SELECT * FROM %s WHERE aw_thumb NOT LIKE '%%nothumb%%' ORDER BY RAND() LIMIT %d", $table, $limit);
+        $sql = sprintf("SELECT * FROM %s WHERE name != '' ORDER BY RAND() LIMIT %d", $table, $limit);
         $wpdb->show_errors();
         $rows = $wpdb->get_results($sql, OBJECT_K);
 
