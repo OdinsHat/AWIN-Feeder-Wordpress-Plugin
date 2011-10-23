@@ -22,15 +22,11 @@ class AwinFeeder_Random extends WP_Widget
             $limit = $instance['count'];
         }
         $table = $wpdb->prefix.'afeeder_products';
-        $sql = sprintf("SELECT * FROM %s ORDER BY RAND() LIMIT %d", $table, $limit);
+        $sql = sprintf("SELECT * FROM %s WHERE aw_thumb NOT LIKE '%%nothumb%%' ORDER BY RAND() LIMIT %d", $table, $limit);
         $wpdb->show_errors();
         $rows = $wpdb->get_results($sql, OBJECT_K);
 
-        echo '<ul style="list-style:none;">';
-        foreach($rows as $row){
-            echo '<li>'.$row->name.'</li>';
-        }
-        echo '</ul>';
+        include_once ABSPATH.'/wp-content/plugins/awin-feeder/templates/widget_random.php';
 
         echo $after_widget;
     }
