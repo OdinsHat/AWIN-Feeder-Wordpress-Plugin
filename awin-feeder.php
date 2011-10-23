@@ -58,6 +58,7 @@ if(!class_exists("AwinFeeder")){
         {
             $awin_feeder_options = array(
                 'author_link' => 'true',
+                'awin_user_id' => '',
                 'api_key' => '',
                 'api_md5_hash' => ''
             );
@@ -74,6 +75,7 @@ if(!class_exists("AwinFeeder")){
         public function scProductBlock($atts, $content = null)
         {
             global $wpdb;
+            $awin_feeder_options = $this->getPluginOptions();
             $table = $wpdb->prefix.'afeeder_products';
             $sql = "SELECT * FROM $table";
             $conditions = array();
@@ -162,6 +164,7 @@ if(!class_exists("AwinFeeder")){
 
         private function _buildScOutput($rows, $col_count)
         {
+            $awin_feeder_options = $this->getPluginOptions();
             switch($col_count){
                 case(2):$width='50%';break;
                 case(3):$width='33%';break;
@@ -233,6 +236,7 @@ if(!class_exists("AwinFeeder")){
             // If admin page has been submitted then...
             if(isset($_POST['update_awinfeeder'])){
                 $awin_feeder_options['api_key'] = $_POST['awin_api_key'];
+                $awin_feeder_options['awin_user_id'] = $_POST['awin_user_id'];
                 update_option($this->adminOptionsName, $awin_feeder_options);
             }
 
@@ -240,27 +244,13 @@ if(!class_exists("AwinFeeder")){
             ?>
 
             <div class="wrap">
-                <h2>AWIN Feeder Management</h2>
+                <h2>General Options</h2>
                 <form method="post" action="<?php echo $_SERVER['REQUEST_URI']; ?>">
                     <input type="hidden" name="update_awinfeeder" value="1" />
-                    <h3>Add Feed</h3>
-                    <p>Be careful that you don't import a feed of several hundred 
-                    thousand. Althoguh its theoretically possible its better to keep
-                    the numbers lower.</p>
-                    <label for="awin-api-key">AWIN API Key</label>
-                    <input name="awin_api_key" type="text" id="awin-api-key" value="<?php echo $awin_feeder_options['api_key']; ?>" />
+                    <label for="awin-user-id">AWIN User ID (used for merchant links)</label>
+                    <input name="awin_user_id" type="text" id="awin-user-id" value="<?php echo $awin_feeder_options['awin_user_id']; ?>" />
                     <input type="submit" value="Save" />
                 </form>
-                <form>
-                    <h3>Import Products</h3>
-                    <p>Narrow your preferences to a certain type of product then press "Search"</p>
-                    <label for="search-term">Search Term</label>
-                    <input type="text" name="search_term" id="search_term" />
-                    <input type="button" onclick="runSearch()" value="Search" />
-                    <div id="products">
-
-                    </div>
-                 </form>
             </div>
 
             <?php
