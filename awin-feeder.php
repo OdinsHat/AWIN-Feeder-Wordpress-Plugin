@@ -483,5 +483,6 @@ if(isset($awin_feeder)){
     add_shortcode('aw-prodblock', array(&$awin_feeder, 'scProductBlock'));
 }
 include_once dirname( __FILE__ ) . '/widgets/awinfeeder_random.php';
+include_once dirname( __FILE__ ) . '/widgets/awinfeeder_cheapest.php';
 
 ?>
