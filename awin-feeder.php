@@ -219,15 +219,8 @@ if(!class_exists("AwinFeeder")){
          */
         public function printProductsList()
         {
-            global $wpdb;
-            $table = $wpdb->prefix.'afeeder_products';
-            $sql = "SELECT * FROM $table";
-
-            $rows = $wpdb->get_results($sql, OBJECT_K);
-            echo '<table class="display" id="products-table"><thead><tr><th>Name</th><th>Merchant</th><th>Brand</th><th>Price</th></tr></thead><tbody>';
-            foreach($rows as $row){
-                echo "<tr><td>$row->name</td><td>$row->merchant</td><td>$row->brand</td><td>$row->price</td></tr>";
-            }
+            echo '<table class="display" id="products-table"><thead><tr><th>ID</th><th>Name</th><th>Merchant</th><th>Brand</th><th>Price</th><th>Actions</th></tr></thead><tbody>';
+            echo '<tr><td colspan="4">Loading</td></tr>';
             echo "</table>";
         }
 
@@ -245,12 +238,6 @@ if(!class_exists("AwinFeeder")){
 
 
             ?>
-
-            <script type="text/javascript">
-                function runSearch() {
-                    jQuery('#products').load('/wp-content/plugins/awin-feeder/awin-feeder-ajax.php');
-                }
-            </script>
 
             <div class="wrap">
                 <h2>AWIN Feeder Management</h2>
@@ -335,6 +322,128 @@ if(!class_exists("AwinFeeder")){
                 die();
             }
         }
+        
+        /**
+         * Output JSON encoded listing of products.
+         * 
+         * This function is called via Ajax to display JSON encoded 
+         * listing of all products for the datatable.
+         */
+        public function jsonProducts()
+        {
+            global $wpdb;
+
+            $columns = array('id', 'name', 'merchant', 'brand', 'price');
+            $column_count = count($columns);
+
+            /* Indexed column (used for fast and accurate table cardinality) */
+            $sIndexColumn = "id";
+
+            /* DB table to use */
+            $table = $wpdb->prefix.'afeeder_products';
+
+            /* 
+            * Paging
+            */
+            $sLimit = "";
+            if(isset($_GET['iDisplayStart']) && $_GET['iDisplayLength'] != '-1'){
+                $sLimit = "LIMIT ".mysql_real_escape_string($_GET['iDisplayStart']).", ".
+                mysql_real_escape_string( $_GET['iDisplayLength'] );
+            }
+
+
+            /*
+            * Ordering
+            */
+            if(isset($_GET['iSortCol_0'])){
+                $sOrder = "ORDER BY  ";
+                for($i=0;$i<$_GET['iSortingCols'];$i++){
+                    if ( $_GET[ 'bSortable_'.intval($_GET['iSortCol_'.$i]) ] == "true" ){
+                        $sOrder .= $columns[$_GET['iSortCol_'.$i]]." ".mysql_real_escape_string( $_GET['sSortDir_'.$i] ) .", ";
+                    }
+                }
+
+                $sOrder = substr_replace( $sOrder, "", -2 );
+                if ( $sOrder == "ORDER BY" ){
+                    $sOrder = "";
+                }
+            }
+
+            /* 
+            * Filtering
+            * NOTE this does not match the built-in DataTables filtering which does it
+            * word by word on any field. It's possible to do here, but concerned about efficiency
+            * on very large tables, and MySQL's regex functionality is very limited
+            */
+            $sWhere = "";
+            if ( $_GET['sSearch'] != "" ){
+                $sWhere = "WHERE (";
+                for($i = 0; $i < $column_count; $i++){
+                    $sWhere .= $columns[$i]." LIKE '%".mysql_real_escape_string( $_GET['sSearch'] )."%' OR ";
+                }
+                $sWhere = substr_replace( $sWhere, "", -3 );
+                $sWhere .= ')';
+            }
+
+            /* Individual column filtering */
+            for($i = 0; $i < $column_count; $i++){
+                if ( $_GET['bSearchable_'.$i] == "true" && $_GET['sSearch_'.$i] != '' ){
+                    if ( $sWhere == "" ){
+                        $sWhere = "WHERE ";
+                    }else{
+                        $sWhere .= " AND ";
+                    }
+                    $sWhere .= $columns[$i]." LIKE '%".mysql_real_escape_string($_GET['sSearch_'.$i])."%' ";
+                }
+            }
+
+            /*
+            * SQL queries
+            * Get data to display
+            */
+            $sQuery = "
+                SELECT SQL_CALC_FOUND_ROWS ".str_replace(" , ", " ", implode(", ", $columns))."
+                FROM $table
+                $sWhere
+                $sOrder
+                $sLimit
+            ";
+            $wpdb->show_errors();
+            $rResult = $wpdb->get_results($sQuery, ARRAY_A);
+
+            /* Data set length after filtering */
+            $sQuery = "SELECT FOUND_ROWS()";
+            $iFilteredTotal = $wpdb->get_var($sQuery);
+
+            /* Total data set length */
+            $sQuery = "
+                SELECT COUNT(".$sIndexColumn.")
+                FROM  $table
+            ";
+            $iTotal = $wpdb->get_var($sQuery);
+
+            /*
+            * Output
+            */
+            $output = array(
+                "sEcho" => intval($_GET['sEcho']),
+                "iTotalRecords" => $iTotal,
+                "iTotalDisplayRecords" => $iFilteredTotal,
+                "aaData" => array()
+            );
+
+            foreach($rResult as $aRow){
+                $row = array();
+                for($i = 0; $i < $column_count; $i++){
+                    $row[] = $aRow[$columns[$i]];
+                }
+                $row[] = "<a href='#'>Del</a>";
+                $output['aaData'][] = $row;
+            }
+
+            echo json_encode( $output );
+            die();
+        }
 
         public function plugin_scripts()
         {
@@ -377,6 +486,7 @@ if(isset($awin_feeder)){
     add_action('activate_awin-feeder/awin-feeder.php', array(&$awin_feeder, 'init'));
     add_action('admin_print_scripts', array(&$awin_feeder, 'plugin_scripts'));
     add_action('admin_print_styles', array(&$awin_feeder, 'plugin_styles'));
+    add_action('wp_ajax_json_products', array(&$awin_feeder, 'jsonProducts'));
     add_action('init', array(&$awin_feeder, 'handleHop'));
 
     add_shortcode('aw-prodgrid', array(&$awin_feeder, 'scProductGrid'));
