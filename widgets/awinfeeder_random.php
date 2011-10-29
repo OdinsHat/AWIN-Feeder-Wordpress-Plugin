@@ -12,6 +12,7 @@ class AwinFeeder_Random extends WP_Widget
         global $wpdb;
         $limit = 5;
         $wheres = array();
+        $where_stirng = '';
 
         extract($args);
         $title = apply_filters('widget_title', $instance['title']);
@@ -25,9 +26,11 @@ class AwinFeeder_Random extends WP_Widget
         if($instance['brand']){
             $wheres[] = sprintf('brand = "%s"', $instance['brand']);
         }
-        $where_string = implode(' AND ', $wheres);
+        if(count($wheres) > 0){
+            $where_string = ' AND '.implode(' AND ', $wheres);
+        }
         $table = $wpdb->prefix.'afeeder_products';
-        $sql = sprintf("SELECT * FROM %s WHERE name != '' AND %s ORDER BY RAND() LIMIT %d", $table, $where_string, $limit);
+        $sql = sprintf("SELECT * FROM %s WHERE name != '' %s ORDER BY RAND() LIMIT %d", $table, $where_string, $limit);
         $wpdb->show_errors();
         $rows = $wpdb->get_results($sql, OBJECT_K);
 
