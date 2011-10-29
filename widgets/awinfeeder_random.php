@@ -11,6 +11,7 @@ class AwinFeeder_Random extends WP_Widget
     {
         global $wpdb;
         $limit = 5;
+        $wheres = array();
 
         extract($args);
         $title = apply_filters('widget_title', $instance['title']);
@@ -21,8 +22,12 @@ class AwinFeeder_Random extends WP_Widget
         if($instance['count'] > 0){
             $limit = $instance['count'];
         }
+        if($instance['brand']){
+            $wheres[] = sprintf('brand = "%s"', $instance['brand']);
+        }
+        $where_string = implode(' AND ', $wheres);
         $table = $wpdb->prefix.'afeeder_products';
-        $sql = sprintf("SELECT * FROM %s WHERE name != '' ORDER BY RAND() LIMIT %d", $table, $limit);
+        $sql = sprintf("SELECT * FROM %s WHERE name != '' AND %s ORDER BY RAND() LIMIT %d", $table, $where_string, $limit);
         $wpdb->show_errors();
         $rows = $wpdb->get_results($sql, OBJECT_K);
 
@@ -38,6 +43,7 @@ class AwinFeeder_Random extends WP_Widget
         if($instance){
             $title = esc_attr($instance['title']);
             $count = sprintf("%d", $instance['count']);
+            $brand = esc_attr($instance['brand']);
         }
         ?>
         <p>
@@ -45,6 +51,8 @@ class AwinFeeder_Random extends WP_Widget
         <input class="widefat" id="<?php echo $this->get_field_id('title'); ?>" name="<?php echo $this->get_field_name('title'); ?>" type="text" value="<?php echo $title; ?>" />
         <label for="<?php echo $this->get_field_id('count'); ?>"><?php _e('Count:'); ?></label> 
         <input class="widefat" id="<?php echo $this->get_field_id('count'); ?>" name="<?php echo $this->get_field_name('count'); ?>" type="text" value="<?php echo $count; ?>" />
+        <label for="<?php echo $this->get_field_id('brand'); ?>"><?php _e('Brand:'); ?></label> 
+        <input class="widefat" id="<?php echo $this->get_field_id('brand'); ?>" name="<?php echo $this->get_field_name('brand'); ?>" type="text" value="<?php echo $brand; ?>" />
         </p>
         <?php 
     }

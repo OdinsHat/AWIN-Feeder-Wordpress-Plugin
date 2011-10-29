@@ -30,7 +30,9 @@ function awinfeeder_install()
         model_no        VARCHAR(128),
         m_cat           VARCHAR(128),
         a_cat           VARCHAR(128),
-        aw_link         VARCHAR(255)
+        aw_link         VARCHAR(255),
+        brand           VARCHAR(128),
+        mid             INT(16)
     )
     ";
     require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
@@ -209,7 +211,8 @@ if(!class_exists("AwinFeeder")){
                 'm_cat' => $data[8],
                 'a_cat' => $data[9],
                 'aw_link' => $data[10],
-                'brand' => $data[11]
+                'brand' => $data[11],
+                'mid' => $data[12]
             );
             $wpdb->show_errors();
             echo $wpdb->insert($table, $mapped_data);
