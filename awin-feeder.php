@@ -126,6 +126,7 @@ if(!class_exists("AwinFeeder")){
 
             $col_count = 3;
             $limit = 9;
+            $cref = '';
 
             if(isset($atts['cols'])){
                 $col_count = $atts['cols'];
@@ -133,6 +134,10 @@ if(!class_exists("AwinFeeder")){
 
             if(isset($atts['limit'])){
                 $limit = $atts['limit'];
+            }
+
+            if(isset($atts['cref'])){
+                $cref = $atts['cref'];
             }
 
             $conditions = array();
@@ -159,13 +164,16 @@ if(!class_exists("AwinFeeder")){
             $sql .= sprintf(' LIMIT %d', $limit);
             $rows = $wpdb->get_results($sql, OBJECT_K);
 
-            $output = $this->_buildScOutput($rows, $col_count);
+            $output = $this->_buildScOutput($rows, $col_count, $cref);
 
             return $output;
         }
 
-        private function _buildScOutput($rows, $col_count)
+        private function _buildScOutput($rows, $col_count, $cref)
         {
+            if(strlen($cref) > 0){
+                $cref = '/'.$cref;
+            }
             $awin_feeder_options = $this->getPluginOptions();
             switch($col_count){
                 case(2):$width='50%';break;
@@ -180,10 +188,10 @@ if(!class_exists("AwinFeeder")){
             foreach($rows as $row){
                 $output .= sprintf('
                 <td style="vertical-align:top;width:%s">
-                    <a rel="nofollow" href="/hopo/%d"><img src="%s" alt="%s" /></a><br />
-                    <a href="/hopo/%d" rel="nofollow">%s</a>
+                    <a rel="nofollow" href="/hopo/%d%s"><img src="%s" alt="%s" /></a><br />
+                    <a href="/hopo/%d%s" rel="nofollow">%s</a>
                 </td>
-                ', $width, $row->id, $row->aw_thumb, $row->name, $row->id, $row->name);
+                ', $width, $row->id, $cref, $row->aw_thumb, $row->name, $row->id, $cref, $row->name);
                 $i++;
                 if($i % $col_count == 0){
                     $output .= '</tr><tr>';
@@ -311,7 +319,11 @@ if(!class_exists("AwinFeeder")){
                 $sql = sprintf('SELECT * FROM %s WHERE id=%d LIMIT 1', $table, $id);
                 $rec = $wpdb->get_row($sql, OBJECT);
                 header("X-Robots-Tag: noindex, nofollow", true);
-                wp_redirect($rec->aw_link, 301);
+                $follow = $rec->aw_link;
+                if(isset($parts[3])){
+                    $follow .= '&clickref='.$parts[3];
+                }
+                wp_redirect($follow, 301);
                 die();
             }
         }
