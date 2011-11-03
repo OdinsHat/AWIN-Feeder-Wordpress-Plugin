@@ -32,7 +32,12 @@ function awinfeeder_install()
         a_cat           VARCHAR(128),
         aw_link         VARCHAR(255),
         brand           VARCHAR(128),
-        mid             INT(16)
+        mid             INT(16),
+        local_image     VARCHAR(128),
+        warranty        VARCHAR(255),
+        ean             VARCHAR(32),
+        upc             VARCHAR(32),
+        mpn             VARCHAR(128)
     )
     ";
     require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
@@ -202,25 +207,70 @@ if(!class_exists("AwinFeeder")){
             return $output;
         }
 
+        private function _grabImage($target_path, $image_url, $name, $type = 'full')
+        {
+            $name_parts = explode(' ', $name);
+            $new_filename = $name_parts[0].'-'.$name_parts[1].hash('crc32', $name).rand(1,99).'.jpg';
+            $local_image_file  = $target_path.$new_filename;
+            $ch = curl_init($image_url);
+            $fp = fopen($local_image_file, 'wb');
+            curl_setopt($ch, CURLOPT_FILE, $fp);
+            curl_setopt($ch, CURLOPT_HEADER, 0);
+            curl_exec($ch);
+            curl_close($ch);
+            fclose($fp);
+
+            return $new_filename;
+        }
+
+        public function fetchImages()
+        {
+            global $wpdb;
+            $table = $wpdb->prefix.'afeeder_products';
+            $sql = "SELECT id, m_image, aw_thumb, name FROM $table WHERE local_image = ''";
+            $wpdb->show_errors();
+            $rows = $wpdb->get_results($sql, OBJECT_K);
+            
+            $target_path = ABSPATH.'wp-content/uploads/prodimgs/';
+            if($type == 'thumb'){
+                $target_path .= 'thumbs/';
+            }
+
+            if(!file_exists($target_path)){
+                if(!mkdir($target_path, 0777, true)){
+                    die('Coud not produce target directory - please create manually');
+                }
+            }
+            foreach($rows as $row){
+                $local_image = $this->_grabImage($target_path, $row->m_image, $row->name, 'full');
+                $wpdb->update($table, array('local_image' => $local_image), array('id' => $row->id), array('%s'), array('%d'));
+            }      
+        }
+
         public function insertProduct($data)
         {
-            //product name,description,promotext,merchant,awin image,awin thumb,price,model_no,merchant category,awin category,awin deeplink</p>
             global $wpdb;
             $table = $wpdb->prefix.'afeeder_products';
             $mapped_data = array(
-                'name' => $data[0],
-                'description' => $data[1],
-                'promotext' => $data[2],
-                'merchant' => $data[3],
-                'aw_image' => $data[4],
-                'aw_thumb' => $data[5],
-                'price' => $data[6],
-                'model_no' => $data[7],
-                'm_cat' => $data[8],
-                'a_cat' => $data[9],
-                'aw_link' => $data[10],
-                'brand' => $data[11],
-                'mid' => $data[12]
+                'mid' => $data[0],
+                'merchant' => $data[1],
+                'model_no' => $data[8],
+                'upc' => $data[4],
+                'ean' => $data[5],
+                'mpn' => $data[6],
+                'name' => $data[9],
+                'description' => $data[10],
+                'promotext' => $data[12],
+                'aw_image' => $data[23],
+                'aw_thumb' => $data[22],
+                'price' => $data[28],
+                'm_cat' => $data[13],
+                'a_cat' => $data[15],
+                'aw_link' => $data[21],
+                'brand' => $data[17],
+                'm_image' => $data[20],
+                'm_thumb' => $data[19],
+                'warranty' => $data[38]
             );
             $wpdb->show_errors();
             echo $wpdb->insert($table, $mapped_data);
@@ -281,7 +331,7 @@ if(!class_exists("AwinFeeder")){
                     print_r($_FILES);
                 }
                 if (($handle = fopen($target_path, "r")) !== FALSE) {
-                    while (($data = fgetcsv($handle, 1000, ",")) !== FALSE) {
+                    while (($data = fgetcsv($handle, 1000, "|")) !== FALSE) {
                         $this->insertProduct($data);
                     }
                     fclose($handle);
