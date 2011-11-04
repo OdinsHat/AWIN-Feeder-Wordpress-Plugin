@@ -67,7 +67,8 @@ if(!class_exists("AwinFeeder")){
                 'author_link' => 'true',
                 'awin_user_id' => '',
                 'api_key' => '',
-                'api_md5_hash' => ''
+                'api_md5_hash' => '',
+                'use_local_images' => false
             );
             $savedOptions = get_option($this->adminOptionsName);
             if(!empty($savedOptions)){
@@ -111,6 +112,12 @@ if(!class_exists("AwinFeeder")){
                 $description = $content;
             }
 
+            $thumb_image = $product->aw_thumb;
+
+            if($awin_feeder_options['use_local_images']){
+                $thumb_image = '/wp-content/uploads/prodimgs/thumbs/'.$product->local_image;
+            }
+
             $output = sprintf('
             <div id="awf-prod-%d class="aw-prod" style="padding:10px;">
                 <h4 class="prod-title">%s</h4>
@@ -118,7 +125,7 @@ if(!class_exists("AwinFeeder")){
                 <div class="prod-desc">%s</div>
                 <a rel="nofollow" href="/hopo/%d"><img src="/wp-content/plugins/awin-feeder/images/shop-button.png" class="alignright" /></a>
                 <br style="clear:both;" />
-            </div>', $product->id, $product->name, $product->id, $product->aw_thumb, $product->name, $description, $product->id);
+            </div>', $product->id, $product->name, $product->id, $thumb_image, $product->name, $description, $product->id);
 
             return $output;
         }
@@ -191,12 +198,17 @@ if(!class_exists("AwinFeeder")){
             $output .= '<tr>';
             $i = 0;
             foreach($rows as $row){
+                $thumb_image = $row->aw_thumb;
+
+                if($awin_feeder_options['use_local_images']){
+                    $thumb_image = '/wp-content/uploads/prodimgs/thumbs/'.$row->local_image;
+                }
                 $output .= sprintf('
                 <td style="vertical-align:top;width:%s">
                     <a rel="nofollow" href="/hopo/%d%s"><img src="%s" alt="%s" /></a><br />
                     <a href="/hopo/%d%s" rel="nofollow">%s</a>
                 </td>
-                ', $width, $row->id, $cref, $row->aw_thumb, $row->name, $row->id, $cref, $row->name);
+                ', $width, $row->id, $cref, $thumb_image, $row->name, $row->id, $cref, $row->name);
                 $i++;
                 if($i % $col_count == 0){
                     $output .= '</tr><tr>';
@@ -298,6 +310,7 @@ if(!class_exists("AwinFeeder")){
             if(isset($_POST['update_awinfeeder'])){
                 $awin_feeder_options['api_key'] = $_POST['awin_api_key'];
                 $awin_feeder_options['awin_user_id'] = $_POST['awin_user_id'];
+                $awin_feeder_options['use_local_images'] = $_POST['use_local_images'];
                 update_option($this->adminOptionsName, $awin_feeder_options);
             }
 
@@ -310,6 +323,12 @@ if(!class_exists("AwinFeeder")){
                     <input type="hidden" name="update_awinfeeder" value="1" />
                     <label for="awin-user-id">AWIN User ID (used for merchant links)</label>
                     <input name="awin_user_id" type="text" id="awin-user-id" value="<?php echo $awin_feeder_options['awin_user_id']; ?>" />
+                    <br/>
+                    <label for="use-local-images">Use Local Images (must have fetched them!)</label>
+                    <select name="use_local_images" id="use-local-images">
+                        <option value="true"<?php echo ($awin_feeder_options['use_local_images'])?' selected':''; ?>>Yes</option>
+                        <option value="false"<?php echo (!$awin_feeder_options['use_local_images'])?' selected':''; ?>>No</option>
+                    </select><br/>
                     <input type="submit" value="Save" />
                 </form>
             </div>
@@ -531,6 +550,7 @@ if (!function_exists("SetupAwinFeeder")) {
             add_menu_page('AWIN Feeder', 'AWIN Feeder', 8, 'awin-feeder', array(&$awin_feeder, 'printAdminPage'));
             $products_page = add_submenu_page('awin-feeder', 'Products', 'Products', 8, 'awin-products', array(&$awin_feeder, 'printProductsList'));
             add_submenu_page('awin-feeder', 'Upload', 'Upload', 8, 'awin-upload', array(&$awin_feeder, 'printUploadForm'));
+            add_submenu_page('awin-feeder', 'Fetch Images', 'Fetch Images', 8, 'awin-fetch-images', array(&$awin_feeder, 'fetchImages'));
         }
     }     
 }
