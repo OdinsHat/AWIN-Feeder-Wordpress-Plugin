@@ -32,7 +32,12 @@ function awinfeeder_install()
         a_cat           VARCHAR(128),
         aw_link         VARCHAR(255),
         brand           VARCHAR(128),
-        mid             INT(16)
+        mid             INT(16),
+        local_image     VARCHAR(128),
+        warranty        VARCHAR(255),
+        ean             VARCHAR(32),
+        upc             VARCHAR(32),
+        mpn             VARCHAR(128)
     )
     ";
     require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
@@ -62,7 +67,8 @@ if(!class_exists("AwinFeeder")){
                 'author_link' => 'true',
                 'awin_user_id' => '',
                 'api_key' => '',
-                'api_md5_hash' => ''
+                'api_md5_hash' => '',
+                'use_local_images' => false
             );
             $savedOptions = get_option($this->adminOptionsName);
             if(!empty($savedOptions)){
@@ -82,16 +88,20 @@ if(!class_exists("AwinFeeder")){
             $sql = "SELECT * FROM $table";
             $conditions = array();
             $output = '';
-            
-            foreach($atts as $key => $val){
-                if($key == 'name'){
-                    $conditions[] = sprintf("%s LIKE '%%%s%%'", $key, $val);
-                }else if($key == 'brand' || $key == 'merchant'){
-                    $conditions[] = sprintf("%s = '%s'", $key, $val);
+
+            if(isset($atts['id'])){
+                $sql .= sprintf(' WHERE id=%d', $atts['id']);
+            }else{
+                foreach($atts as $key => $val){
+                    if($key == 'name'){
+                        $conditions[] = sprintf("%s LIKE '%%%s%%'", $key, $val);
+                    }else if($key == 'brand' || $key == 'merchant'){
+                        $conditions[] = sprintf("%s = '%s'", $key, $val);
+                    }
                 }
-            }
-            if(count($conditions) > 0){
-                $sql .= ' WHERE '.implode(' AND ', $conditions);
+                if(count($conditions) > 0){
+                    $sql .= ' WHERE '.implode(' AND ', $conditions);
+                }
             }
             
             if(isset($atts['offset'])){
@@ -99,11 +109,18 @@ if(!class_exists("AwinFeeder")){
             }else{
                 $sql .= ' LIMIT 1';
             }
+            
             $product = $wpdb->get_row($sql, OBJECT);
 
             $description = $product->description;
             if(strlen($content) > 0){
                 $description = $content;
+            }
+
+            $thumb_image = $product->aw_thumb;
+
+            if($awin_feeder_options['use_local_images']){
+                $thumb_image = '/wp-content/uploads/prodimgs/thumbs/'.$product->local_image;
             }
 
             $output = sprintf('
@@ -113,7 +130,7 @@ if(!class_exists("AwinFeeder")){
                 <div class="prod-desc">%s</div>
                 <a rel="nofollow" href="/hopo/%d"><img src="/wp-content/plugins/awin-feeder/images/shop-button.png" class="alignright" /></a>
                 <br style="clear:both;" />
-            </div>', $product->id, $product->name, $product->id, $product->aw_thumb, $product->name, $description, $product->id);
+            </div>', $product->id, $product->name, $product->id, $thumb_image, $product->name, $description, $product->id);
 
             return $output;
         }
@@ -125,7 +142,8 @@ if(!class_exists("AwinFeeder")){
             $sql = "SELECT * FROM $table";
 
             $col_count = 3;
-            $limit = 9;
+            $limit = 6;
+            $cref = '';
 
             if(isset($atts['cols'])){
                 $col_count = $atts['cols'];
@@ -133,6 +151,10 @@ if(!class_exists("AwinFeeder")){
 
             if(isset($atts['limit'])){
                 $limit = $atts['limit'];
+            }
+
+            if(isset($atts['cref'])){
+                $cref = $atts['cref'];
             }
 
             $conditions = array();
@@ -159,13 +181,16 @@ if(!class_exists("AwinFeeder")){
             $sql .= sprintf(' LIMIT %d', $limit);
             $rows = $wpdb->get_results($sql, OBJECT_K);
 
-            $output = $this->_buildScOutput($rows, $col_count);
+            $output = $this->_buildScOutput($rows, $col_count, $cref);
 
             return $output;
         }
 
-        private function _buildScOutput($rows, $col_count)
+        private function _buildScOutput($rows, $col_count, $cref)
         {
+            if(strlen($cref) > 0){
+                $cref = '/'.$cref;
+            }
             $awin_feeder_options = $this->getPluginOptions();
             switch($col_count){
                 case(2):$width='50%';break;
@@ -178,12 +203,17 @@ if(!class_exists("AwinFeeder")){
             $output .= '<tr>';
             $i = 0;
             foreach($rows as $row){
+                $thumb_image = $row->aw_thumb;
+
+                if($awin_feeder_options['use_local_images']){
+                    $thumb_image = '/wp-content/uploads/prodimgs/thumbs/'.$row->local_image;
+                }
                 $output .= sprintf('
                 <td style="vertical-align:top;width:%s">
-                    <a rel="nofollow" href="/hopo/%d"><img src="%s" alt="%s" /></a><br />
-                    <a href="/hopo/%d" rel="nofollow">%s</a>
+                    <a rel="nofollow" href="/hopo/%d%s"><img src="%s" alt="%s" /></a><br />
+                    <a href="/hopo/%d%s" rel="nofollow">%s</a>
                 </td>
-                ', $width, $row->id, $row->aw_thumb, $row->name, $row->id, $row->name);
+                ', $width, $row->id, $cref, $thumb_image, $row->name, $row->id, $cref, $row->name);
                 $i++;
                 if($i % $col_count == 0){
                     $output .= '</tr><tr>';
@@ -194,25 +224,70 @@ if(!class_exists("AwinFeeder")){
             return $output;
         }
 
+        private function _grabImage($target_path, $image_url, $name, $type = 'full')
+        {
+            $name_parts = explode(' ', $name);
+            $new_filename = $name_parts[0].'-'.$name_parts[1].hash('crc32', $name).rand(1,99).'.jpg';
+            $local_image_file  = $target_path.$new_filename;
+            $ch = curl_init($image_url);
+            $fp = fopen($local_image_file, 'wb');
+            curl_setopt($ch, CURLOPT_FILE, $fp);
+            curl_setopt($ch, CURLOPT_HEADER, 0);
+            curl_exec($ch);
+            curl_close($ch);
+            fclose($fp);
+
+            return $new_filename;
+        }
+
+        public function fetchImages()
+        {
+            global $wpdb;
+            $table = $wpdb->prefix.'afeeder_products';
+            $sql = "SELECT id, m_image, aw_thumb, name FROM $table WHERE local_image = ''";
+            $wpdb->show_errors();
+            $rows = $wpdb->get_results($sql, OBJECT_K);
+            
+            $target_path = ABSPATH.'wp-content/uploads/prodimgs/';
+            if($type == 'thumb'){
+                $target_path .= 'thumbs/';
+            }
+
+            if(!file_exists($target_path)){
+                if(!mkdir($target_path, 0777, true)){
+                    die('Coud not produce target directory - please create manually');
+                }
+            }
+            foreach($rows as $row){
+                $local_image = $this->_grabImage($target_path, $row->m_image, $row->name, 'full');
+                $wpdb->update($table, array('local_image' => $local_image), array('id' => $row->id), array('%s'), array('%d'));
+            }      
+        }
+
         public function insertProduct($data)
         {
-            //product name,description,promotext,merchant,awin image,awin thumb,price,model_no,merchant category,awin category,awin deeplink</p>
             global $wpdb;
             $table = $wpdb->prefix.'afeeder_products';
             $mapped_data = array(
-                'name' => $data[0],
-                'description' => $data[1],
-                'promotext' => $data[2],
-                'merchant' => $data[3],
-                'aw_image' => $data[4],
-                'aw_thumb' => $data[5],
-                'price' => $data[6],
-                'model_no' => $data[7],
-                'm_cat' => $data[8],
-                'a_cat' => $data[9],
-                'aw_link' => $data[10],
-                'brand' => $data[11],
-                'mid' => $data[12]
+                'mid' => $data[0],
+                'merchant' => $data[1],
+                'model_no' => $data[8],
+                'upc' => $data[4],
+                'ean' => $data[5],
+                'mpn' => $data[6],
+                'name' => $data[9],
+                'description' => $data[10],
+                'promotext' => $data[12],
+                'aw_image' => $data[23],
+                'aw_thumb' => $data[22],
+                'price' => $data[28],
+                'm_cat' => $data[13],
+                'a_cat' => $data[15],
+                'aw_link' => $data[21],
+                'brand' => $data[17],
+                'm_image' => $data[20],
+                'm_thumb' => $data[19],
+                'warranty' => $data[38]
             );
             $wpdb->show_errors();
             echo $wpdb->insert($table, $mapped_data);
@@ -225,7 +300,7 @@ if(!class_exists("AwinFeeder")){
          */
         public function printProductsList()
         {
-            echo '<table class="display" id="products-table"><thead><tr><th>ID</th><th>Name</th><th>Merchant</th><th>Brand</th><th>Price</th><th>Actions</th></tr></thead><tbody>';
+            echo '<table class="display" id="products-table"><thead><tr><th>ID</th><th>Image</th><th>Name</th><th>Merchant</th><th>Brand</th><th>Price</th><th>Actions</th></tr></thead><tbody>';
             echo '<tr><td colspan="4">Loading</td></tr>';
             echo "</table>";
         }
@@ -240,6 +315,7 @@ if(!class_exists("AwinFeeder")){
             if(isset($_POST['update_awinfeeder'])){
                 $awin_feeder_options['api_key'] = $_POST['awin_api_key'];
                 $awin_feeder_options['awin_user_id'] = $_POST['awin_user_id'];
+                $awin_feeder_options['use_local_images'] = $_POST['use_local_images'];
                 update_option($this->adminOptionsName, $awin_feeder_options);
             }
 
@@ -252,6 +328,12 @@ if(!class_exists("AwinFeeder")){
                     <input type="hidden" name="update_awinfeeder" value="1" />
                     <label for="awin-user-id">AWIN User ID (used for merchant links)</label>
                     <input name="awin_user_id" type="text" id="awin-user-id" value="<?php echo $awin_feeder_options['awin_user_id']; ?>" />
+                    <br/>
+                    <label for="use-local-images">Use Local Images (must have fetched them!)</label>
+                    <select name="use_local_images" id="use-local-images">
+                        <option value="true"<?php echo ($awin_feeder_options['use_local_images'])?' selected':''; ?>>Yes</option>
+                        <option value="false"<?php echo (!$awin_feeder_options['use_local_images'])?' selected':''; ?>>No</option>
+                    </select><br/>
                     <input type="submit" value="Save" />
                 </form>
             </div>
@@ -311,9 +393,23 @@ if(!class_exists("AwinFeeder")){
                 $sql = sprintf('SELECT * FROM %s WHERE id=%d LIMIT 1', $table, $id);
                 $rec = $wpdb->get_row($sql, OBJECT);
                 header("X-Robots-Tag: noindex, nofollow", true);
-                wp_redirect($rec->aw_link, 301);
+                $follow = $rec->aw_link;
+                if(isset($parts[3])){
+                    $follow .= '&clickref='.$parts[3];
+                }
+                wp_redirect($follow, 301);
                 die();
             }
+        }
+
+        public function delProduct()
+        {
+            global $wpdb;
+
+            $id = $_POST['id'];
+            $table = $wpdb->prefix.'afeeder_products';
+
+            $wpdb->query(sprintf('DELETE FROM %s WHERE id=%d', $table, $id));
         }
         
         /**
@@ -326,7 +422,7 @@ if(!class_exists("AwinFeeder")){
         {
             global $wpdb;
 
-            $columns = array('id', 'name', 'merchant', 'brand', 'price');
+            $columns = array('id', 'aw_thumb', 'name', 'merchant', 'brand', 'price');
             $column_count = count($columns);
 
             /* Indexed column (used for fast and accurate table cardinality) */
@@ -428,9 +524,14 @@ if(!class_exists("AwinFeeder")){
             foreach($rResult as $aRow){
                 $row = array();
                 for($i = 0; $i < $column_count; $i++){
-                    $row[] = $aRow[$columns[$i]];
+                    if($columns[$i] == 'aw_thumb'){
+                        $row[] = '<img src="'.$aRow[$columns[$i]].'" />';
+                    }else{
+                        $row[] = $aRow[$columns[$i]];
+                    }
                 }
-                $row[] = "<a href='#'>Del</a>";
+                $row[] = "<a href='#' id='{$aRow['id']}' class='aw-prod-del'>Del</a>";
+                $row['DT_RowId'] = 'row_'.$aRow['id'];
                 $output['aaData'][] = $row;
             }
 
@@ -469,6 +570,7 @@ if (!function_exists("SetupAwinFeeder")) {
             add_menu_page('AWIN Feeder', 'AWIN Feeder', 8, 'awin-feeder', array(&$awin_feeder, 'printAdminPage'));
             $products_page = add_submenu_page('awin-feeder', 'Products', 'Products', 8, 'awin-products', array(&$awin_feeder, 'printProductsList'));
             add_submenu_page('awin-feeder', 'Upload', 'Upload', 8, 'awin-upload', array(&$awin_feeder, 'printUploadForm'));
+            add_submenu_page('awin-feeder', 'Fetch Images', 'Fetch Images', 8, 'awin-fetch-images', array(&$awin_feeder, 'fetchImages'));
         }
     }     
 }
@@ -479,13 +581,14 @@ if(isset($awin_feeder)){
     add_action('activate_awin-feeder/awin-feeder.php', array(&$awin_feeder, 'init'));
     add_action('admin_print_scripts', array(&$awin_feeder, 'plugin_scripts'));
     add_action('admin_print_styles', array(&$awin_feeder, 'plugin_styles'));
-    add_action('wp_ajax_json_products', array(&$awin_feeder, 'jsonProducts'));
+    add_action('wp_ajax_aw_json_prod', array(&$awin_feeder, 'jsonProducts'));
+    add_action('wp_ajax_aw_del_prod', array(&$awin_feeder, 'delProduct'));
     add_action('init', array(&$awin_feeder, 'handleHop'));
 
     add_shortcode('aw-prodgrid', array(&$awin_feeder, 'scProductGrid'));
     add_shortcode('aw-prodblock', array(&$awin_feeder, 'scProductBlock'));
 }
 include_once dirname( __FILE__ ) . '/widgets/awinfeeder_random.php';
-include_once dirname( __FILE__ ) . '/widgets/awinfeeder_cheapest.php';
+include_once dirname( __FILE__ ) . '/widgets/awinfeeder_cheapdear.php';
 
 ?>
