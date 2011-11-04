@@ -273,7 +273,7 @@ if(!class_exists("AwinFeeder")){
                     print_r($_FILES);
                 }
                 if (($handle = fopen($target_path, "r")) !== FALSE) {
-                    while (($data = fgetcsv($handle, 1000, ",")) !== FALSE) {
+                    while (($data = fgetcsv($handle, 1000, "|")) !== FALSE) {
                         $this->insertProduct($data);
                     }
                     fclose($handle);
