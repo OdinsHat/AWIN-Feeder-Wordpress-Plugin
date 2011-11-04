@@ -295,7 +295,7 @@ if(!class_exists("AwinFeeder")){
          */
         public function printProductsList()
         {
-            echo '<table class="display" id="products-table"><thead><tr><th>ID</th><th>Name</th><th>Merchant</th><th>Brand</th><th>Price</th><th>Actions</th></tr></thead><tbody>';
+            echo '<table class="display" id="products-table"><thead><tr><th>ID</th><th>Image</th><th>Name</th><th>Merchant</th><th>Brand</th><th>Price</th><th>Actions</th></tr></thead><tbody>';
             echo '<tr><td colspan="4">Loading</td></tr>';
             echo "</table>";
         }
@@ -396,6 +396,16 @@ if(!class_exists("AwinFeeder")){
                 die();
             }
         }
+
+        public function delProduct()
+        {
+            global $wpdb;
+
+            $id = $_POST['id'];
+            $table = $wpdb->prefix.'afeeder_products';
+
+            $wpdb->query(sprintf('DELETE FROM %s WHERE id=%d', $table, $id));
+        }
         
         /**
          * Output JSON encoded listing of products.
@@ -407,7 +417,7 @@ if(!class_exists("AwinFeeder")){
         {
             global $wpdb;
 
-            $columns = array('id', 'name', 'merchant', 'brand', 'price');
+            $columns = array('id', 'aw_thumb', 'name', 'merchant', 'brand', 'price');
             $column_count = count($columns);
 
             /* Indexed column (used for fast and accurate table cardinality) */
@@ -509,9 +519,14 @@ if(!class_exists("AwinFeeder")){
             foreach($rResult as $aRow){
                 $row = array();
                 for($i = 0; $i < $column_count; $i++){
-                    $row[] = $aRow[$columns[$i]];
+                    if($columns[$i] == 'aw_thumb'){
+                        $row[] = '<img src="'.$aRow[$columns[$i]].'" />';
+                    }else{
+                        $row[] = $aRow[$columns[$i]];
+                    }
                 }
-                $row[] = "<a href='#'>Del</a>";
+                $row[] = "<a href='#' id='{$aRow['id']}' class='aw-prod-del'>Del</a>";
+                $row['DT_RowId'] = 'row_'.$aRow['id'];
                 $output['aaData'][] = $row;
             }
 
@@ -561,13 +576,14 @@ if(isset($awin_feeder)){
     add_action('activate_awin-feeder/awin-feeder.php', array(&$awin_feeder, 'init'));
     add_action('admin_print_scripts', array(&$awin_feeder, 'plugin_scripts'));
     add_action('admin_print_styles', array(&$awin_feeder, 'plugin_styles'));
-    add_action('wp_ajax_json_products', array(&$awin_feeder, 'jsonProducts'));
+    add_action('wp_ajax_aw_json_prod', array(&$awin_feeder, 'jsonProducts'));
+    add_action('wp_ajax_aw_del_prod', array(&$awin_feeder, 'delProduct'));
     add_action('init', array(&$awin_feeder, 'handleHop'));
 
     add_shortcode('aw-prodgrid', array(&$awin_feeder, 'scProductGrid'));
     add_shortcode('aw-prodblock', array(&$awin_feeder, 'scProductBlock'));
 }
 include_once dirname( __FILE__ ) . '/widgets/awinfeeder_random.php';
-include_once dirname( __FILE__ ) . '/widgets/awinfeeder_cheapest.php';
+include_once dirname( __FILE__ ) . '/widgets/awinfeeder_cheapdear.php';
 
 ?>
