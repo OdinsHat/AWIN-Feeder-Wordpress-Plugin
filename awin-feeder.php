@@ -88,16 +88,20 @@ if(!class_exists("AwinFeeder")){
             $sql = "SELECT * FROM $table";
             $conditions = array();
             $output = '';
-            
-            foreach($atts as $key => $val){
-                if($key == 'name'){
-                    $conditions[] = sprintf("%s LIKE '%%%s%%'", $key, $val);
-                }else if($key == 'brand' || $key == 'merchant'){
-                    $conditions[] = sprintf("%s = '%s'", $key, $val);
+
+            if(isset($atts['id'])){
+                $sql .= sprintf(' WHERE id=%d', $atts['id']);
+            }else{
+                foreach($atts as $key => $val){
+                    if($key == 'name'){
+                        $conditions[] = sprintf("%s LIKE '%%%s%%'", $key, $val);
+                    }else if($key == 'brand' || $key == 'merchant'){
+                        $conditions[] = sprintf("%s = '%s'", $key, $val);
+                    }
                 }
-            }
-            if(count($conditions) > 0){
-                $sql .= ' WHERE '.implode(' AND ', $conditions);
+                if(count($conditions) > 0){
+                    $sql .= ' WHERE '.implode(' AND ', $conditions);
+                }
             }
             
             if(isset($atts['offset'])){
@@ -105,6 +109,7 @@ if(!class_exists("AwinFeeder")){
             }else{
                 $sql .= ' LIMIT 1';
             }
+            
             $product = $wpdb->get_row($sql, OBJECT);
 
             $description = $product->description;
@@ -137,7 +142,7 @@ if(!class_exists("AwinFeeder")){
             $sql = "SELECT * FROM $table";
 
             $col_count = 3;
-            $limit = 9;
+            $limit = 6;
             $cref = '';
 
             if(isset($atts['cols'])){

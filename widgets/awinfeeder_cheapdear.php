@@ -11,6 +11,7 @@ class AwinFeeder_Cheapest extends WP_Widget
     {
         global $wpdb;
         $limit = 5;
+        $order = 'ASC';
 
         extract($args);
         $title = apply_filters('widget_title', $instance['title']);
@@ -21,6 +22,10 @@ class AwinFeeder_Cheapest extends WP_Widget
         if($instance['count'] > 0){
             $limit = $instance['count'];
         }
+        if(isset($instance['order'])){
+            $order = $instance['order'];
+        }
+
         $table = $wpdb->prefix.'afeeder_products';
         $sql = sprintf("
             SELECT * 
@@ -28,8 +33,8 @@ class AwinFeeder_Cheapest extends WP_Widget
             WHERE aw_thumb NOT LIKE '%%nothumb%%' 
                 AND brand != '' 
                 AND name != ''
-            ORDER BY price ASC 
-            LIMIT %d", $table, $limit
+            ORDER BY price %s 
+            LIMIT %d", $table, $order, $limit
         );
         $wpdb->show_errors();
         $rows = $wpdb->get_results($sql, OBJECT_K);
@@ -43,9 +48,11 @@ class AwinFeeder_Cheapest extends WP_Widget
     {
         $title = 'Cheapest Products';
         $count = 5;
+        $order = 'ASC';
         if($instance){
             $title = esc_attr($instance['title']);
             $count = sprintf("%d", $instance['count']);
+            $order = esc_attr($instance['order']);
         }
         ?>
         <p>
@@ -53,6 +60,11 @@ class AwinFeeder_Cheapest extends WP_Widget
         <input class="widefat" id="<?php echo $this->get_field_id('title'); ?>" name="<?php echo $this->get_field_name('title'); ?>" type="text" value="<?php echo $title; ?>" />
         <label for="<?php echo $this->get_field_id('count'); ?>"><?php _e('Count:'); ?></label> 
         <input class="widefat" id="<?php echo $this->get_field_id('count'); ?>" name="<?php echo $this->get_field_name('count'); ?>" type="text" value="<?php echo $count; ?>" />
+        <label for="<?php echo $this->get_field_id('order'); ?>"><?php _e('Order:'); ?></label> 
+        <select id="<?php echo $this->get_field_id('order'); ?>" name="<?php echo $this->get_field_name('order'); ?>">
+            <option value="ASC"<?php echo ($order=='ASC')?' selected':''; ?>>Cheapest</option>
+            <option value="DESC"<?php echo ($order=='DESC')?' selected':''; ?>>Dearest</option>
+        </select>
         </p>
         <?php 
     }
