@@ -15,12 +15,17 @@ as they wish.
 Forks, issues, bugs, etc are welcomed though I'll be doing my fair share
 of tidying up too - see todo below.
 
+**I strongly advice against installing this yourself yet. Although I have it working on a couple of Wordpress 
+blogs it is highly unstable, unfinished.**
+
 Features
 --------
 
-**1. Page & Post Tags**
+**1. Page & Post Tags - [aw-prodgrid] & [aw-prodblock]**
 
-For example any part of a page could be given the following tag:
+**[aw-prodgrid]**
+
+This created a product grid wherever it was included in a page or post.
 
 ```[aw-prodgrid brand="Adidas" limit="6"]```
 
@@ -31,10 +36,18 @@ It had rudimentary searching ability so you could have a tag like this:
 
 ```[aw-prodgrid brand="Adidas" name="black" limit="6"]```
 
+Example of the above tag output:
+
+![Adidas Watches Black](http://i.imgur.com/fh2kySC.png)
+
 The ```name``` attribute would be checked to ensure the title of the product contained that word.
+
+**[aw-prodblock]**
+
+Given a valid ID as an attribute this would output the product with its description and pricing.
 
 **2. Widgets**
 
 Two simple widgets were included:
  * Cheapest/Dearest Products - This widget would display a count of the top/bottom products by price.
-  * Random by Brand - A very basic widget used to give random products of a particular brand.
+ * Random by Brand - A very basic widget used to give random products of a particular brand.

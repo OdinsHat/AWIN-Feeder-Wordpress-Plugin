@@ -1,10 +1,11 @@
 <?php
 /*
 Plugin Name: AWIN Feeder
-Plugin URI: http://www.tintophat.com/products/wp/awin-feeder
-Description: Build Wordpress posts based on products from an AWIN datafeed
+Plugin URI: https://github.com/OdinsHat/AWIN-Feeder
+Description: Build Wordpress posts based on products from an Affiliate Window datafeed
 Version: 0.8
-Author: Doug Bromley
+Author: Doug Bromley <doug@tintophat.com>
+Copyright: Doug Bromley <doug@tintophat.com>
 Author URI: http://www.tintophat.com
 */
 global $awinfeeder_db_version;
