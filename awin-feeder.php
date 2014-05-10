@@ -1,16 +1,28 @@
 <?php
-/*
-Plugin Name: AWIN Feeder
-Plugin URI: https://github.com/OdinsHat/AWIN-Feeder
-Description: Build Wordpress posts based on products from an Affiliate Window datafeed
-Version: 0.8
-Author: Doug Bromley <doug@tintophat.com>
-Copyright: Doug Bromley <doug@tintophat.com>
-Author URI: http://www.tintophat.com
-*/
+/**
+ * Plugin Name: AWIN Feeder
+ * Plugin URI: https://github.com/OdinsHat/AWIN-Feeder
+ * Description: Build Wordpress posts based on products from an Affiliate Window datafeed
+ * Version: 0.8
+ * Author: Doug Bromley <doug@tintophat.com>
+ * Copyright: Doug Bromley <doug@tintophat.com>
+ * Author URI: http://www.tintophat.com
+ *
+ * @package AWIN-Feeder
+ * @author Doug Bromley <doug@tintophat.com>
+ */
 global $awinfeeder_db_version;
 $awinfeeder_db_version = "1.0";
 
+
+/**
+ * Installs the AWIN Feeder plugin
+ *
+ * Creates the product table if it doesn't
+ * already exist.
+ *
+ * @return null
+ */
 function awinfeeder_install()
 {
     global $wpdb;
@@ -81,6 +93,23 @@ if(!class_exists("AwinFeeder")){
             return $awin_feeder_options;
         }
 
+        /**
+         * Short code handler for [aw-prodblock]
+         *
+         * Short code will output a single product with picture, description
+         * and price given a product id.
+         *
+         * Example usage:
+         * [aw-prodblock id="999"][/aw-prodblock]
+         *
+         * Example alternative:
+         * [aw-prodblock id="999"]Alternative description[/aw-prodblock]
+         *
+         * @param  array  $atts      Short code attributes ("id" in this case)
+         * @param  string $content   Content between the tags will become
+         *                           the product description if not null
+         * @return string            Text to be output in place of the shortcode
+         */
         public function scProductBlock($atts, $content = null)
         {
             global $wpdb;
@@ -136,6 +165,25 @@ if(!class_exists("AwinFeeder")){
             return $output;
         }
 
+        /**
+         * Short code handler for [aw-prodgrid] shortcode
+         *
+         * Will select products from the table for sending to the grid generator.
+         * {@see AwinFeeder::_buildScOutput()}
+         * The $atts will change the output layout, ordering of products by
+         * price, name, etc. Also can assign click refs to product links.
+         *
+         * @param  array  $atts    Change the structure of the grid based on these options:
+         *                         cols = number of product columns to display
+         *                         limit = total number of products to display
+         *                         cref = the click reference to be assigned to all links in the grid
+         *                         orderby = what to order the product selection by (e.g. price)
+         *                         dir = direction ASC/DESC
+         *                         name = basic LIKE filter applied to "name" field of DB
+         *
+         * @param  string $content Unused in this shortcode
+         * @return string          Content the be output in place of shortcode
+         */
         public function scProductGrid($atts, $content = null)
         {
             global $wpdb;
