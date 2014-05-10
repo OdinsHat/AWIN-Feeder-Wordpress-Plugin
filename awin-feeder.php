@@ -1,16 +1,28 @@
 <?php
-/*
-Plugin Name: AWIN Feeder
-Plugin URI: https://github.com/OdinsHat/AWIN-Feeder
-Description: Build Wordpress posts based on products from an Affiliate Window datafeed
-Version: 0.8
-Author: Doug Bromley <doug@tintophat.com>
-Copyright: Doug Bromley <doug@tintophat.com>
-Author URI: http://www.tintophat.com
-*/
+/**
+ * Plugin Name: AWIN Feeder
+ * Plugin URI: https://github.com/OdinsHat/AWIN-Feeder
+ * Description: Build Wordpress posts based on products from an Affiliate Window datafeed
+ * Version: 0.8
+ * Author: Doug Bromley <doug@tintophat.com>
+ * Copyright: Doug Bromley <doug@tintophat.com>
+ * Author URI: http://www.tintophat.com
+ *
+ * @package AWIN-Feeder
+ * @author Doug Bromley <doug@tintophat.com>
+ */
 global $awinfeeder_db_version;
 $awinfeeder_db_version = "1.0";
 
+
+/**
+ * Installs the AWIN Feeder plugin
+ *
+ * Creates the product table if it doesn't
+ * already exist.
+ *
+ * @return null
+ */
 function awinfeeder_install()
 {
     global $wpdb;
@@ -47,20 +59,39 @@ function awinfeeder_install()
 
 
 if(!class_exists("AwinFeeder")){
+
+
+    /**
+     * Main AWIN Feeder class.
+     *
+     * Contains all the major methods to make the plugin run.
+     */
     class AwinFeeder {
         public $adminOptionsName = 'awinFeederOptions';
+
+        /**
+         * Constructor method - currently does nothing
+         */
         function __construct()
         {
-            
+
         }
 
+        /**
+         * Initialises the plugin options
+         *
+         * @return null
+         */
         public function init()
         {
             $this->getPluginOptions();
         }
 
         /**
-         * Basic options method.
+         * Called by the init() method to set all plugin options in the
+         * AwinFeeder class
+         *
+         * @return array plugin options
          */
         public function getPluginOptions()
         {
@@ -81,6 +112,23 @@ if(!class_exists("AwinFeeder")){
             return $awin_feeder_options;
         }
 
+        /**
+         * Short code handler for [aw-prodblock]
+         *
+         * Short code will output a single product with picture, description
+         * and price given a product id.
+         *
+         * Example usage:
+         * [aw-prodblock id="999"][/aw-prodblock]
+         *
+         * Example alternative:
+         * [aw-prodblock id="999"]Alternative description[/aw-prodblock]
+         *
+         * @param  array  $atts      Short code attributes ("id" in this case)
+         * @param  string $content   Content between the tags will become
+         *                           the product description if not null
+         * @return string            Text to be output in place of the shortcode
+         */
         public function scProductBlock($atts, $content = null)
         {
             global $wpdb;
@@ -136,6 +184,25 @@ if(!class_exists("AwinFeeder")){
             return $output;
         }
 
+        /**
+         * Short code handler for [aw-prodgrid] shortcode
+         *
+         * Will select products from the table for sending to the grid generator.
+         * {@see AwinFeeder::_buildScOutput()}
+         * The $atts will change the output layout, ordering of products by
+         * price, name, etc. Also can assign click refs to product links.
+         *
+         * @param  array  $atts    Change the structure of the grid based on these options:
+         *                         cols = number of product columns to display
+         *                         limit = total number of products to display
+         *                         cref = the click reference to be assigned to all links in the grid
+         *                         orderby = what to order the product selection by (e.g. price)
+         *                         dir = direction ASC/DESC
+         *                         name = basic LIKE filter applied to "name" field of DB
+         *
+         * @param  string $content Unused in this shortcode
+         * @return string          Content the be output in place of shortcode
+         */
         public function scProductGrid($atts, $content = null)
         {
             global $wpdb;
@@ -187,6 +254,17 @@ if(!class_exists("AwinFeeder")){
             return $output;
         }
 
+        /**
+         * Takes the arranged products from the grid shortcode
+         * handler {@see AWINFeeder::scProductGrid()} and outputs the grid
+         * showing the product, price and product name.
+         *
+         * @param  int    $rows      number of rows to use
+         * @param  int    $col_count number of columns to use
+         * @param  string $cref      click ref to add to outgoing links
+         * @return string            The full HTML grid for the shortcode
+         *                           handler to return to Wordpress for output
+         */
         private function _buildScOutput($rows, $col_count, $cref)
         {
             if(strlen($cref) > 0){
@@ -262,9 +340,17 @@ if(!class_exists("AwinFeeder")){
             foreach($rows as $row){
                 $local_image = $this->_grabImage($target_path, $row->m_image, $row->name, 'full');
                 $wpdb->update($table, array('local_image' => $local_image), array('id' => $row->id), array('%s'), array('%d'));
-            }      
+            }
         }
 
+        /**
+         * Inserts a single product into the product table
+         *
+         * Imports the data sent from the {@see AWINFeeder::printUploadForm()}
+         *
+         * @param  array $data  single product data
+         * @return null
+         */
         public function insertProduct($data)
         {
             global $wpdb;
@@ -297,7 +383,11 @@ if(!class_exists("AwinFeeder")){
 
         /**
          * Display listing of products.
-         * @todo use jQuery datatable
+         *
+         * @todo use better table
+         * @todo use better formatting
+         * @todo provide more functionality from the table:
+         *       e.g. view, edit and delete confirmation.
          */
         public function printProductsList()
         {
@@ -307,7 +397,11 @@ if(!class_exists("AwinFeeder")){
         }
 
         /**
-         * Print the main admin page
+         * Prints the main (very sparse) admin page
+         *
+         * Simply enables user to put their AWIN id in for use in links.
+         *
+         * @return null
          */
         public function printAdminPage()
         {
@@ -337,6 +431,14 @@ if(!class_exists("AwinFeeder")){
             <?php
         }
 
+        /**
+         * Print upload form
+         *
+         * The upload form gives a description of the file format to upload
+         * with a file form element.
+         *
+         * @return null
+         */
         public function printUploadForm()
         {
             if(isset($_POST['upload_data'])){
@@ -398,6 +500,11 @@ if(!class_exists("AwinFeeder")){
             }
         }
 
+        /**
+         * Called via ajax call to delete a product from the database
+         *
+         * @return null
+         */
         public function delProduct()
         {
             global $wpdb;
@@ -407,11 +514,11 @@ if(!class_exists("AwinFeeder")){
 
             $wpdb->query(sprintf('DELETE FROM %s WHERE id=%d', $table, $id));
         }
-        
+
         /**
          * Output JSON encoded listing of products.
-         * 
-         * This function is called via Ajax to display JSON encoded 
+         *
+         * This function is called via Ajax to display JSON encoded
          * listing of all products for the datatable.
          */
         public function jsonProducts()
@@ -555,8 +662,13 @@ if(class_exists("AwinFeeder")){
     $awin_feeder = new AwinFeeder();
 }
 
-//Initialize the admin panel
 if (!function_exists("SetupAwinFeeder")) {
+
+    /**
+     * Initialises the admin menu.
+     *
+     * This is called after the "admin_menu" action is fired.
+     */
     function SetupAwinFeeder() {
         global $awin_feeder;
         if (!isset($awin_feeder)) {
@@ -571,7 +683,6 @@ if (!function_exists("SetupAwinFeeder")) {
 }
 
 if(isset($awin_feeder)){
-    //Actions & Filters
     add_action('admin_menu', 'SetupAwinFeeder');
     add_action('activate_awin-feeder/awin-feeder.php', array(&$awin_feeder, 'init'));
     add_action('admin_print_scripts', array(&$awin_feeder, 'plugin_scripts'));
