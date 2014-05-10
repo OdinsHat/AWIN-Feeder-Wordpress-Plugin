@@ -330,11 +330,6 @@ if(!class_exists("AwinFeeder")){
                     <label for="awin-user-id">AWIN User ID (used for merchant links)</label>
                     <input name="awin_user_id" type="text" id="awin-user-id" value="<?php echo $awin_feeder_options['awin_user_id']; ?>" />
                     <br/>
-                    <label for="use-local-images">Use Local Images (must have fetched them!)</label>
-                    <select name="use_local_images" id="use-local-images">
-                        <option value="true"<?php echo ($awin_feeder_options['use_local_images'])?' selected':''; ?>>Yes</option>
-                        <option value="false"<?php echo (!$awin_feeder_options['use_local_images'])?' selected':''; ?>>No</option>
-                    </select><br/>
                     <input type="submit" value="Save" />
                 </form>
             </div>
@@ -571,9 +566,8 @@ if (!function_exists("SetupAwinFeeder")) {
             add_menu_page('AWIN Feeder', 'AWIN Feeder', 8, 'awin-feeder', array(&$awin_feeder, 'printAdminPage'));
             $products_page = add_submenu_page('awin-feeder', 'Products', 'Products', 8, 'awin-products', array(&$awin_feeder, 'printProductsList'));
             add_submenu_page('awin-feeder', 'Upload', 'Upload', 8, 'awin-upload', array(&$awin_feeder, 'printUploadForm'));
-            add_submenu_page('awin-feeder', 'Fetch Images', 'Fetch Images', 8, 'awin-fetch-images', array(&$awin_feeder, 'fetchImages'));
         }
-    }     
+    }
 }
 
 if(isset($awin_feeder)){
