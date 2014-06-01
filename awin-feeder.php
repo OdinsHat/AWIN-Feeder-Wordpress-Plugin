@@ -284,9 +284,6 @@ if(!class_exists("AwinFeeder")){
             foreach($rows as $row){
                 $thumb_image = $row->aw_thumb;
 
-                if($awin_feeder_options['use_local_images']){
-                    $thumb_image = '/wp-content/uploads/prodimgs/thumbs/'.$row->local_image;
-                }
                 $output .= sprintf('
                 <td style="vertical-align:top;width:%s">
                     <a rel="nofollow" href="/hopo/%d%s"><img src="%s" alt="%s" /></a><br />
@@ -410,7 +407,6 @@ if(!class_exists("AwinFeeder")){
             if(isset($_POST['update_awinfeeder'])){
                 $awin_feeder_options['api_key'] = $_POST['awin_api_key'];
                 $awin_feeder_options['awin_user_id'] = $_POST['awin_user_id'];
-                $awin_feeder_options['use_local_images'] = $_POST['use_local_images'];
                 update_option($this->adminOptionsName, $awin_feeder_options);
             }
 
