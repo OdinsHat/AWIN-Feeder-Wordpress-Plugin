@@ -1,5 +1,5 @@
 === AWIN Feeder ===
-Contributors: tintophat
+Contributors: Doug Bromley
 Donate link: http://www.tintophat.com/donate/awin-feeder
 Tags: rss, feed, affiliate
 Requires at least: 2.0.2
