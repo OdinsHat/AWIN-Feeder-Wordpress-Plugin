@@ -300,46 +300,6 @@ if(!class_exists("AwinFeeder")){
             return $output;
         }
 
-        private function _grabImage($target_path, $image_url, $name, $type = 'full')
-        {
-            $name_parts = explode(' ', $name);
-            $new_filename = $name_parts[0].'-'.$name_parts[1].hash('crc32', $name).rand(1,99).'.jpg';
-            $local_image_file  = $target_path.$new_filename;
-            $ch = curl_init($image_url);
-            $fp = fopen($local_image_file, 'wb');
-            curl_setopt($ch, CURLOPT_FILE, $fp);
-            curl_setopt($ch, CURLOPT_HEADER, 0);
-            curl_exec($ch);
-            curl_close($ch);
-            fclose($fp);
-
-            return $new_filename;
-        }
-
-        public function fetchImages()
-        {
-            global $wpdb;
-            $table = $wpdb->prefix.'afeeder_products';
-            $sql = "SELECT id, m_image, aw_thumb, name FROM $table WHERE local_image = ''";
-            $wpdb->show_errors();
-            $rows = $wpdb->get_results($sql, OBJECT_K);
-            
-            $target_path = ABSPATH.'wp-content/uploads/prodimgs/';
-            if($type == 'thumb'){
-                $target_path .= 'thumbs/';
-            }
-
-            if(!file_exists($target_path)){
-                if(!mkdir($target_path, 0777, true)){
-                    die('Coud not produce target directory - please create manually');
-                }
-            }
-            foreach($rows as $row){
-                $local_image = $this->_grabImage($target_path, $row->m_image, $row->name, 'full');
-                $wpdb->update($table, array('local_image' => $local_image), array('id' => $row->id), array('%s'), array('%d'));
-            }
-        }
-
         /**
          * Inserts a single product into the product table
          *
