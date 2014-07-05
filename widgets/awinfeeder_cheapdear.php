@@ -28,7 +28,7 @@ class AwinFeeder_Cheapest extends WP_Widget
 
         $table = $wpdb->prefix.'afeeder_products';
         $sql = sprintf("
-            SELECT * 
+            SELECT price, name, brand, id, aw_thumb
             FROM %s 
             WHERE aw_thumb NOT LIKE '%%nothumb%%' 
                 AND brand != '' 
