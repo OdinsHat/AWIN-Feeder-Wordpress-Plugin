@@ -168,10 +168,6 @@ if(!class_exists("AwinFeeder")){
 
             $thumb_image = $product->aw_thumb;
 
-            if($awin_feeder_options['use_local_images']){
-                $thumb_image = '/wp-content/uploads/prodimgs/thumbs/'.$product->local_image;
-            }
-
             $output = sprintf('
             <div id="awf-prod-%d class="aw-prod" style="padding:10px;">
                 <h4 class="prod-title">%s</h4>
