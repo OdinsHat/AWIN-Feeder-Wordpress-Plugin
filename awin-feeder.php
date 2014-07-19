@@ -472,7 +472,7 @@ if(!class_exists("AwinFeeder")){
             $id = $_POST['id'];
             $table = $wpdb->prefix.'afeeder_products';
 
-            $wpdb->query(sprintf('DELETE FROM %s WHERE id=%d', $table, $id));
+            $wpdb->query($wpdb->prepare("DELETE FROM $table WHERE id=%d', $id));
         }
 
         /**
