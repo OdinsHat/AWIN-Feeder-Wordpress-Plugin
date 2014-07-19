@@ -33,6 +33,7 @@ class AwinFeeder_Cheapest extends WP_Widget
             WHERE aw_thumb NOT LIKE '%%nothumb%%' 
                 AND brand != '' 
                 AND name != ''
+            GROUP BY name
             ORDER BY price %s 
             LIMIT %d", $table, $order, $limit
         );
