@@ -477,15 +477,9 @@ if(!class_exists("AwinFeeder")){
             $id = $_POST['id'];
             $table = $wpdb->prefix.'afeeder_products';
 
-            $wpdb->query($wpdb->prepare("DELETE FROM $table WHERE id=%d', $id));
+            $wpdb->query($wpdb->prepare("DELETE FROM $table WHERE id=%d", $id));
         }
 
-        /**
-         * Output JSON encoded listing of products.
-         *
-         * This function is called via Ajax to display JSON encoded
-         * listing of all products for the datatable.
-         */
         public function jsonProducts()
         {
             global $wpdb;
@@ -493,7 +487,6 @@ if(!class_exists("AwinFeeder")){
             $columns = array('id', 'aw_thumb', 'name', 'merchant', 'brand', 'price');
             $column_count = count($columns);
 
-            /* Indexed column (used for fast and accurate table cardinality) */
             $sIndexColumn = "id";
 
             /* DB table to use */
