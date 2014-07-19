@@ -333,6 +333,7 @@ if(!class_exists("AwinFeeder")){
                 'm_thumb' => $data[19],
                 'warranty' => $data[38]
             );
+            print_r($mapped_data);
             $wpdb->show_errors();
             echo $wpdb->insert($table, $mapped_data);
 
@@ -421,8 +422,13 @@ if(!class_exists("AwinFeeder")){
             <div class="wrap">
                 <h2>Upload Feed</h2>
                 <form method="post" action="<?php echo $_SERVER['REQUEST_URI']; ?>" enctype="multipart/form-data">
-                    <p>Upload a CSV with the following columns (the order is important):<br />
-                    product name,description,promotext,merchant,awin image,awin thumb,price,model_no,merchant category,awin category,awin deeplink</p>
+                    <p>When downloading a feed from Affiliate Window choose the following settings:</p>
+                        <ul>
+                            <li>Recommended fields</li>
+                            <li>CSV format</li>
+                            <li>Any compression type (you'll need to decompress before upload</li>
+                            <li>Use "|" as separator for CSV file</li>
+                        </ul>
                     <input type="hidden" name="upload_data" value="1" />
                     <label>File (csv)</label>
                     <input type="file" name="productdata" />
