@@ -15,8 +15,8 @@ as they wish.
 Forks, issues, bugs, etc are welcomed though I'll be doing my fair share
 of tidying up too - see todo below.
 
-**I strongly advice against installing this yourself yet. Although I have it working on a couple of Wordpress 
-blogs it is highly unstable, unfinished.**
+**I strongly advise against installing this yourself yet. Although I have it working on a couple of Wordpress 
+blogs it is highly unstable and unfinished.**
 
 Features
 --------
