@@ -241,7 +241,7 @@ if(!class_exists("AwinFeeder")){
                 $sql .= sprintf(' ORDER BY %s', $atts['orderby']);
             }
 
-            if(isset($atts['dir'])){
+            if (isset($atts['dir'])) {
                 $sql .= sprintf(' %s', $atts['dir']);
             }
 
@@ -445,14 +445,14 @@ if(!class_exists("AwinFeeder")){
             $request = $_SERVER['REQUEST_URI'];
             $parts = explode('/', $request);
 
-            if($parts[1] == 'hopo'){
+            if ($parts[1] == 'hopo') {
                 $id = $parts[2];
                 $table = $wpdb->prefix.'afeeder_products';
                 $sql = sprintf('SELECT * FROM %s WHERE id=%d LIMIT 1', $table, $id);
                 $rec = $wpdb->get_row($sql, OBJECT);
                 header("X-Robots-Tag: noindex, nofollow", true);
                 $follow = $rec->aw_link;
-                if(isset($parts[3])){
+                if (isset($parts[3])) {
                     $follow .= '&clickref='.$parts[3];
                 }
                 wp_redirect($follow, 301);
