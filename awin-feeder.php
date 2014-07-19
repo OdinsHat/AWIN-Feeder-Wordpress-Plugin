@@ -134,7 +134,7 @@ if(!class_exists("AwinFeeder")){
             global $wpdb;
             $awin_feeder_options = $this->getPluginOptions();
             $table = $wpdb->prefix.'afeeder_products';
-            $sql = "SELECT * FROM $table";
+            $sql = "SELECT id, name, aw_thumb, description FROM $table";
             $conditions = array();
             $output = '';
 
