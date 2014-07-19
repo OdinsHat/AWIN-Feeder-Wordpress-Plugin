@@ -438,6 +438,11 @@ if(!class_exists("AwinFeeder")){
 
         }
 
+        /**
+         * Handles the redirection of a unique product link to its correct 
+         * affiliate link.
+         *
+         */
         public function handleHop()
         {
             global $wpdb;
