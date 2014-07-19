@@ -448,7 +448,7 @@ if(!class_exists("AwinFeeder")){
             if ($parts[1] == 'hopo') {
                 $id = $parts[2];
                 $table = $wpdb->prefix.'afeeder_products';
-                $sql = sprintf('SELECT * FROM %s WHERE id=%d LIMIT 1', $table, $id);
+                $sql = sprintf('SELECT aw_link FROM %s WHERE id=%d LIMIT 1', $table, $id);
                 $rec = $wpdb->get_row($sql, OBJECT);
                 header("X-Robots-Tag: noindex, nofollow", true);
                 $follow = $rec->aw_link;
