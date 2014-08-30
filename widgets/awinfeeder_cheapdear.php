@@ -7,6 +7,14 @@ class AwinFeeder_Cheapest extends WP_Widget
         parent::WP_Widget('awinfeeder_cheapest', 'AWIN Feeder Cheapest', 'Display cheapest products from plugin');
     }
 
+    /**
+     * The extended widget method that plls together the data for the Cheap/Dear
+     * Widget before outputing it by inclusion.
+     *
+     * @param  array $args      Array arguments
+     * @param  array $instance Instance
+     * @return null
+     */
     public function widget($args, $instance)
     {
         global $wpdb;
@@ -28,12 +36,12 @@ class AwinFeeder_Cheapest extends WP_Widget
 
         $table = $wpdb->prefix.'afeeder_products';
         $sql = sprintf("
-            SELECT * 
-            FROM %s 
-            WHERE aw_thumb NOT LIKE '%%nothumb%%' 
-                AND brand != '' 
+            SELECT *
+            FROM %s
+            WHERE aw_thumb NOT LIKE '%%nothumb%%'
+                AND brand != ''
                 AND name != ''
-            ORDER BY price %s 
+            ORDER BY price %s
             LIMIT %d", $table, $order, $limit
         );
         $wpdb->show_errors();
@@ -44,6 +52,12 @@ class AwinFeeder_Cheapest extends WP_Widget
         echo $after_widget;
     }
 
+    /**
+     * Outputs the form for the confirguration of the widget in the Wordpress backend.
+     *
+     * @param  array $instance instance
+     * @return null
+     */
     public function form($instance)
     {
         $title = 'Cheapest Products';
@@ -56,17 +70,17 @@ class AwinFeeder_Cheapest extends WP_Widget
         }
         ?>
         <p>
-        <label for="<?php echo $this->get_field_id('title'); ?>"><?php _e('Title:'); ?></label> 
+        <label for="<?php echo $this->get_field_id('title'); ?>"><?php _e('Title:'); ?></label>
         <input class="widefat" id="<?php echo $this->get_field_id('title'); ?>" name="<?php echo $this->get_field_name('title'); ?>" type="text" value="<?php echo $title; ?>" />
-        <label for="<?php echo $this->get_field_id('count'); ?>"><?php _e('Count:'); ?></label> 
+        <label for="<?php echo $this->get_field_id('count'); ?>"><?php _e('Count:'); ?></label>
         <input class="widefat" id="<?php echo $this->get_field_id('count'); ?>" name="<?php echo $this->get_field_name('count'); ?>" type="text" value="<?php echo $count; ?>" />
-        <label for="<?php echo $this->get_field_id('order'); ?>"><?php _e('Order:'); ?></label> 
+        <label for="<?php echo $this->get_field_id('order'); ?>"><?php _e('Order:'); ?></label>
         <select id="<?php echo $this->get_field_id('order'); ?>" name="<?php echo $this->get_field_name('order'); ?>">
             <option value="ASC"<?php echo ($order=='ASC')?' selected':''; ?>>Cheapest</option>
             <option value="DESC"<?php echo ($order=='DESC')?' selected':''; ?>>Dearest</option>
         </select>
         </p>
-        <?php 
+        <?php
     }
 
 }

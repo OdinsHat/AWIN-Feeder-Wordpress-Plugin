@@ -1,5 +1,11 @@
 <?php
-
+/**
+ * Class for the Random widget. Extends Wordpress' WP_Widget class to create
+ * the admin interface and the frontend UI.
+ *
+ * @package AWIN-Feeder
+ * @author Doug Bromley <doug@tintophat.com>
+ */
 class AwinFeeder_Random extends WP_Widget
 {
     function __construct()
@@ -7,6 +13,14 @@ class AwinFeeder_Random extends WP_Widget
         parent::WP_Widget('awinfeeder_random', 'AWIN Feeder Random', 'Display random products from the AWIN Feeder plugin');
     }
 
+    /**
+     * The extended widget method that plls together the data for the Cheap/Dear
+     * Widget before outputing it by inclusion.
+     *
+     * @param  array $args      Array arguments
+     * @param  array $instance Instance
+     * @return null
+     */
     public function widget($args, $instance)
     {
         global $wpdb;
@@ -39,6 +53,12 @@ class AwinFeeder_Random extends WP_Widget
         echo $after_widget;
     }
 
+    /**
+     * Creates the admin interface for the widget.
+     *
+     * @param  array $instance instance
+     * @return null
+     */
     public function form($instance)
     {
         $title = 'Random Products';
@@ -50,14 +70,14 @@ class AwinFeeder_Random extends WP_Widget
         }
         ?>
         <p>
-        <label for="<?php echo $this->get_field_id('title'); ?>"><?php _e('Title:'); ?></label> 
+        <label for="<?php echo $this->get_field_id('title'); ?>"><?php _e('Title:'); ?></label>
         <input class="widefat" id="<?php echo $this->get_field_id('title'); ?>" name="<?php echo $this->get_field_name('title'); ?>" type="text" value="<?php echo $title; ?>" />
-        <label for="<?php echo $this->get_field_id('count'); ?>"><?php _e('Count:'); ?></label> 
+        <label for="<?php echo $this->get_field_id('count'); ?>"><?php _e('Count:'); ?></label>
         <input class="widefat" id="<?php echo $this->get_field_id('count'); ?>" name="<?php echo $this->get_field_name('count'); ?>" type="text" value="<?php echo $count; ?>" />
-        <label for="<?php echo $this->get_field_id('brand'); ?>"><?php _e('Brand:'); ?></label> 
+        <label for="<?php echo $this->get_field_id('brand'); ?>"><?php _e('Brand:'); ?></label>
         <input class="widefat" id="<?php echo $this->get_field_id('brand'); ?>" name="<?php echo $this->get_field_name('brand'); ?>" type="text" value="<?php echo $brand; ?>" />
         </p>
-        <?php 
+        <?php
     }
 
 }
