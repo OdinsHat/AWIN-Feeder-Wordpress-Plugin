@@ -24,26 +24,29 @@ class AwinFeeder_Cheapest extends WP_Widget
         extract($args);
         $title = apply_filters('widget_title', $instance['title']);
         echo $before_widget;
-        if($title){
+        if ($title) {
             echo $before_title.$title.$after_title;
         }
-        if($instance['count'] > 0){
+        if ($instance['count'] > 0) {
             $limit = $instance['count'];
         }
-        if(isset($instance['order'])){
+        if (isset($instance['order'])) {
             $order = $instance['order'];
         }
 
         $table = $wpdb->prefix.'afeeder_products';
-        $sql = sprintf("
-            SELECT price, name, brand, id, aw_thumb
+        $sql = sprintf(
+            "SELECT price, name, brand, id, aw_thumb
             FROM %s
             WHERE aw_thumb NOT LIKE '%%nothumb%%'
                 AND brand != ''
                 AND name != ''
             GROUP BY name
             ORDER BY price %s
-            LIMIT %d", $table, $order, $limit
+            LIMIT %d",
+            $table,
+            $order,
+            $limit
         );
         $wpdb->show_errors();
         $rows = $wpdb->get_results($sql, OBJECT_K);
@@ -64,7 +67,7 @@ class AwinFeeder_Cheapest extends WP_Widget
         $title = 'Cheapest Products';
         $count = 5;
         $order = 'ASC';
-        if($instance){
+        if ($instance) {
             $title = esc_attr($instance['title']);
             $count = sprintf("%d", $instance['count']);
             $order = esc_attr($instance['order']);
@@ -83,7 +86,6 @@ class AwinFeeder_Cheapest extends WP_Widget
         </p>
         <?php
     }
-
 }
 
 add_action( 'widgets_init', create_function( '', 'register_widget("AwinFeeder_Cheapest");' ) );

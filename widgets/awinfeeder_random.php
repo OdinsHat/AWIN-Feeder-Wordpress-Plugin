@@ -31,16 +31,16 @@ class AwinFeeder_Random extends WP_Widget
         extract($args);
         $title = apply_filters('widget_title', $instance['title']);
         echo $before_widget;
-        if($title){
+        if ($title) {
             echo $before_title.$title.$after_title;
         }
-        if($instance['count'] > 0){
+        if ($instance['count'] > 0) {
             $limit = $instance['count'];
         }
-        if($instance['brand']){
+        if ($instance['brand']) {
             $wheres[] = sprintf('brand = "%s"', $instance['brand']);
         }
-        if(count($wheres) > 0){
+        if (count($wheres) > 0) {
             $where_string = ' AND '.implode(' AND ', $wheres);
         }
         $table = $wpdb->prefix.'afeeder_products';
@@ -63,7 +63,7 @@ class AwinFeeder_Random extends WP_Widget
     {
         $title = 'Random Products';
         $count = 5;
-        if($instance){
+        if ($instance) {
             $title = esc_attr($instance['title']);
             $count = sprintf("%d", $instance['count']);
             $brand = esc_attr($instance['brand']);
