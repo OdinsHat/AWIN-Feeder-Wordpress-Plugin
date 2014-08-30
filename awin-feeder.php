@@ -9,7 +9,10 @@
  * Author URI: http://www.tintophat.com
  *
  * @package AWIN-Feeder
- * @author Doug Bromley <doug@tintophat.com>
+ * @author  Doug Bromley <doug@tintophat.com>
+ * @copyright Doug Bromley <doug@tintophat.com>
+ * @license BSD
+ *
  */
 global $awinfeeder_db_version;
 $awinfeeder_db_version = "1.0";
@@ -134,43 +137,39 @@ if(!class_exists("AwinFeeder")){
             global $wpdb;
             $awin_feeder_options = $this->getPluginOptions();
             $table = $wpdb->prefix.'afeeder_products';
-            $sql = "SELECT * FROM $table";
+            $sql = "SELECT id, name, aw_thumb, description FROM $table";
             $conditions = array();
             $output = '';
 
-            if(isset($atts['id'])){
+            if (isset($atts['id'])) {
                 $sql .= sprintf(' WHERE id=%d', $atts['id']);
-            }else{
-                foreach($atts as $key => $val){
-                    if($key == 'name'){
+            } else {
+                foreach ($atts as $key => $val) {
+                    if ($key == 'name') {
                         $conditions[] = sprintf("%s LIKE '%%%s%%'", $key, $val);
-                    }else if($key == 'brand' || $key == 'merchant'){
+                    } else if ($key == 'brand' || $key == 'merchant') {
                         $conditions[] = sprintf("%s = '%s'", $key, $val);
                     }
                 }
-                if(count($conditions) > 0){
+                if (count($conditions) > 0) {
                     $sql .= ' WHERE '.implode(' AND ', $conditions);
                 }
             }
             
-            if(isset($atts['offset'])){
+            if (isset($atts['offset'])) {
                 $sql .= sprintf(' LIMIT %d,1', $atts['offset']);
-            }else{
+            } else {
                 $sql .= ' LIMIT 1';
             }
             
             $product = $wpdb->get_row($sql, OBJECT);
 
             $description = $product->description;
-            if(strlen($content) > 0){
+            if (strlen($content) > 0) {
                 $description = $content;
             }
 
             $thumb_image = $product->aw_thumb;
-
-            if($awin_feeder_options['use_local_images']){
-                $thumb_image = '/wp-content/uploads/prodimgs/thumbs/'.$product->local_image;
-            }
 
             $output = sprintf('
             <div id="awf-prod-%d class="aw-prod" style="padding:10px;">
@@ -213,36 +212,36 @@ if(!class_exists("AwinFeeder")){
             $limit = 6;
             $cref = '';
 
-            if(isset($atts['cols'])){
+            if (isset($atts['cols'])) {
                 $col_count = $atts['cols'];
             }
 
-            if(isset($atts['limit'])){
+            if (isset($atts['limit'])) {
                 $limit = $atts['limit'];
             }
 
-            if(isset($atts['cref'])){
+            if (isset($atts['cref'])) {
                 $cref = $atts['cref'];
             }
 
             $conditions = array();
             $output = '';
             
-            foreach($atts as $key => $val){
-                if($key == 'name'){
+            foreach ($atts as $key => $val) {
+                if ($key == 'name') {
                     $conditions[] = sprintf("%s LIKE '%%%s%%'", $key, $val);
-                }else if($key == 'brand' || $key == 'merchant'){
+                } else if ($key == 'brand' || $key == 'merchant') {
                     $conditions[] = sprintf("%s = '%s'", $key, $val);
                 }
             }
-            if(count($conditions) > 0){
+            if (count($conditions) > 0) {
                 $sql .= ' WHERE '.implode(' AND ', $conditions);
             }
-            if(isset($atts['orderby'])){
+            if (isset($atts['orderby'])) {
                 $sql .= sprintf(' ORDER BY %s', $atts['orderby']);
             }
 
-            if(isset($atts['dir'])){
+            if (isset($atts['dir'])) {
                 $sql .= sprintf(' %s', $atts['dir']);
             }
 
@@ -267,7 +266,7 @@ if(!class_exists("AwinFeeder")){
          */
         private function _buildScOutput($rows, $col_count, $cref)
         {
-            if(strlen($cref) > 0){
+            if (strlen($cref) > 0) {
                 $cref = '/'.$cref;
             }
             $awin_feeder_options = $this->getPluginOptions();
@@ -281,7 +280,7 @@ if(!class_exists("AwinFeeder")){
             $output .= '<table class="awf-prod-grid">';
             $output .= '<tr>';
             $i = 0;
-            foreach($rows as $row){
+            foreach ($rows as $row) {
                 $thumb_image = $row->aw_thumb;
 
                 $output .= sprintf('
@@ -291,7 +290,7 @@ if(!class_exists("AwinFeeder")){
                 </td>
                 ', $width, $row->id, $cref, $thumb_image, $row->name, $row->id, $cref, $row->name);
                 $i++;
-                if($i % $col_count == 0){
+                if ($i % $col_count == 0) {
                     $output .= '</tr><tr>';
                 }
             }
@@ -421,8 +420,13 @@ if(!class_exists("AwinFeeder")){
             <div class="wrap">
                 <h2>Upload Feed</h2>
                 <form method="post" action="<?php echo $_SERVER['REQUEST_URI']; ?>" enctype="multipart/form-data">
-                    <p>Upload a CSV with the following columns (the order is important):<br />
-                    product name,description,promotext,merchant,awin image,awin thumb,price,model_no,merchant category,awin category,awin deeplink</p>
+                    <p>When downloading a feed from Affiliate Window choose the following settings:</p>
+                        <ul>
+                            <li>Recommended fields</li>
+                            <li>CSV format</li>
+                            <li>Any compression type (you'll need to decompress before upload</li>
+                            <li>Use "|" as separator for CSV file</li>
+                        </ul>
                     <input type="hidden" name="upload_data" value="1" />
                     <label>File (csv)</label>
                     <input type="file" name="productdata" />
@@ -434,6 +438,11 @@ if(!class_exists("AwinFeeder")){
 
         }
 
+        /**
+         * Handles the redirection of a unique product link to its correct 
+         * affiliate link.
+         *
+         */
         public function handleHop()
         {
             global $wpdb;
@@ -441,14 +450,14 @@ if(!class_exists("AwinFeeder")){
             $request = $_SERVER['REQUEST_URI'];
             $parts = explode('/', $request);
 
-            if($parts[1] == 'hopo'){
+            if ($parts[1] == 'hopo') {
                 $id = $parts[2];
                 $table = $wpdb->prefix.'afeeder_products';
-                $sql = sprintf('SELECT * FROM %s WHERE id=%d LIMIT 1', $table, $id);
+                $sql = sprintf('SELECT aw_link FROM %s WHERE id=%d LIMIT 1', $table, $id);
                 $rec = $wpdb->get_row($sql, OBJECT);
                 header("X-Robots-Tag: noindex, nofollow", true);
                 $follow = $rec->aw_link;
-                if(isset($parts[3])){
+                if (isset($parts[3])) {
                     $follow .= '&clickref='.$parts[3];
                 }
                 wp_redirect($follow, 301);
@@ -468,15 +477,9 @@ if(!class_exists("AwinFeeder")){
             $id = $_POST['id'];
             $table = $wpdb->prefix.'afeeder_products';
 
-            $wpdb->query(sprintf('DELETE FROM %s WHERE id=%d', $table, $id));
+            $wpdb->query($wpdb->prepare("DELETE FROM $table WHERE id=%d", $id));
         }
 
-        /**
-         * Output JSON encoded listing of products.
-         *
-         * This function is called via Ajax to display JSON encoded
-         * listing of all products for the datatable.
-         */
         public function jsonProducts()
         {
             global $wpdb;
@@ -484,7 +487,6 @@ if(!class_exists("AwinFeeder")){
             $columns = array('id', 'aw_thumb', 'name', 'merchant', 'brand', 'price');
             $column_count = count($columns);
 
-            /* Indexed column (used for fast and accurate table cardinality) */
             $sIndexColumn = "id";
 
             /* DB table to use */

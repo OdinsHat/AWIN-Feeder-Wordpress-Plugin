@@ -36,11 +36,12 @@ class AwinFeeder_Cheapest extends WP_Widget
 
         $table = $wpdb->prefix.'afeeder_products';
         $sql = sprintf("
-            SELECT *
+            SELECT price, name, brand, id, aw_thumb
             FROM %s
             WHERE aw_thumb NOT LIKE '%%nothumb%%'
                 AND brand != ''
                 AND name != ''
+            GROUP BY name
             ORDER BY price %s
             LIMIT %d", $table, $order, $limit
         );

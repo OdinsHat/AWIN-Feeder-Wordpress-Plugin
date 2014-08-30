@@ -44,7 +44,7 @@ class AwinFeeder_Random extends WP_Widget
             $where_string = ' AND '.implode(' AND ', $wheres);
         }
         $table = $wpdb->prefix.'afeeder_products';
-        $sql = sprintf("SELECT * FROM %s WHERE name != '' %s ORDER BY RAND() LIMIT %d", $table, $where_string, $limit);
+        $sql = sprintf("SELECT name, id, price, brand FROM %s WHERE name != '' %s GROUP BY name ORDER BY RAND() LIMIT %d", $table, $where_string, $limit);
         $wpdb->show_errors();
         $rows = $wpdb->get_results($sql, OBJECT_K);
 
