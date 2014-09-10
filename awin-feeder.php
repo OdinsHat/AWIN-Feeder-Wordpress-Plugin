@@ -61,7 +61,7 @@ function awinfeeder_install()
 }
 
 
-if(!class_exists("AwinFeeder")){
+if (!class_exists("AwinFeeder")) {
 
 
     /**
@@ -69,13 +69,14 @@ if(!class_exists("AwinFeeder")){
      *
      * Contains all the major methods to make the plugin run.
      */
-    class AwinFeeder {
+    class AwinFeeder
+    {
         public $adminOptionsName = 'awinFeederOptions';
 
         /**
          * Constructor method - currently does nothing
          */
-        function __construct()
+        public function __construct()
         {
 
         }
@@ -106,8 +107,8 @@ if(!class_exists("AwinFeeder")){
                 'use_local_images' => false
             );
             $savedOptions = get_option($this->adminOptionsName);
-            if(!empty($savedOptions)){
-                foreach($savedOptions as $key => $val){
+            if (!empty($savedOptions)) {
+                foreach ($savedOptions as $key => $val) {
                     $awin_feeder_options[$key] = $val;
                 }
             }
@@ -155,13 +156,13 @@ if(!class_exists("AwinFeeder")){
                     $sql .= ' WHERE '.implode(' AND ', $conditions);
                 }
             }
-            
+
             if (isset($atts['offset'])) {
                 $sql .= sprintf(' LIMIT %d,1', $atts['offset']);
             } else {
                 $sql .= ' LIMIT 1';
             }
-            
+
             $product = $wpdb->get_row($sql, OBJECT);
 
             $description = $product->description;
@@ -226,7 +227,7 @@ if(!class_exists("AwinFeeder")){
 
             $conditions = array();
             $output = '';
-            
+
             foreach ($atts as $key => $val) {
                 if ($key == 'name') {
                     $conditions[] = sprintf("%s LIKE '%%%s%%'", $key, $val);
@@ -398,10 +399,10 @@ if(!class_exists("AwinFeeder")){
         {
             if(isset($_POST['upload_data'])){
                 $target_path = ABSPATH.'wp-content/uploads/';
-                $target_path = $target_path.basename($_FILES['productdata']['name']); 
+                $target_path = $target_path.basename($_FILES['productdata']['name']);
 
                 if(move_uploaded_file($_FILES['productdata']['tmp_name'], $target_path)) {
-                    echo "The file ".  basename( $_FILES['productdata']['name']). 
+                    echo "The file ".  basename( $_FILES['productdata']['name']).
                         " has been uploaded";
                 }else{
                     echo "There was an error uploading the file, please try again!".$target_path;
@@ -439,7 +440,7 @@ if(!class_exists("AwinFeeder")){
         }
 
         /**
-         * Handles the redirection of a unique product link to its correct 
+         * Handles the redirection of a unique product link to its correct
          * affiliate link.
          *
          */
@@ -492,7 +493,7 @@ if(!class_exists("AwinFeeder")){
             /* DB table to use */
             $table = $wpdb->prefix.'afeeder_products';
 
-            /* 
+            /*
             * Paging
             */
             $sLimit = "";
@@ -519,7 +520,7 @@ if(!class_exists("AwinFeeder")){
                 }
             }
 
-            /* 
+            /*
             * Filtering
             * NOTE this does not match the built-in DataTables filtering which does it
             * word by word on any field. It's possible to do here, but concerned about efficiency
@@ -652,7 +653,5 @@ if(isset($awin_feeder)){
     add_shortcode('aw-prodgrid', array(&$awin_feeder, 'scProductGrid'));
     add_shortcode('aw-prodblock', array(&$awin_feeder, 'scProductBlock'));
 }
-include_once dirname( __FILE__ ) . '/widgets/awinfeeder_random.php';
-include_once dirname( __FILE__ ) . '/widgets/awinfeeder_cheapdear.php';
-
-?>
+include_once dirname(__FILE__) . '/widgets/awinfeeder_random.php';
+include_once dirname(__FILE__) . '/widgets/awinfeeder_cheapdear.php';
