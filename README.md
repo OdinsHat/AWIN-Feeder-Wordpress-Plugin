@@ -1,7 +1,5 @@
-AWIN Feeder
-===========
-Wordpress Plugin
-----------------
+AWIN Feeder Wordpress Plugin
+============================
 
 A [Wordpress](http://wordpress.org) plugin originally developed in 2011 for
 helping with placement of affiliate products from [Affiliate Window](http://www.affiliatewindow.com) product feeds
