@@ -101,7 +101,8 @@ if (!class_exists("AwinFeeder")) {
         {
             $awin_feeder_options = array(
                 'author_link' => 'true',
-                'awin_user_id' => '',
+		'awin_user_id' => '',
+		'awin_api_key' => '',
                 'api_key' => '',
                 'api_md5_hash' => '',
                 'use_local_images' => false
@@ -367,6 +368,7 @@ if (!class_exists("AwinFeeder")) {
             if(isset($_POST['update_awinfeeder'])){
                 $awin_feeder_options['api_key'] = $_POST['awin_api_key'];
                 $awin_feeder_options['awin_user_id'] = $_POST['awin_user_id'];
+                $awin_feeder_options['awin_api_key'] = $_POST['awin_api_key'];
                 update_option($this->adminOptionsName, $awin_feeder_options);
             }
 
