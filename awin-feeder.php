@@ -377,11 +377,20 @@ if (!class_exists("AwinFeeder")) {
 
             <div class="wrap">
                 <h2>General Options</h2>
-                <form method="post" action="<?php echo $_SERVER['REQUEST_URI']; ?>">
-                    <input type="hidden" name="update_awinfeeder" value="1" />
-                    <label for="awin-user-id">AWIN User ID (used for merchant links)</label>
-                    <input name="awin_user_id" type="text" id="awin-user-id" value="<?php echo $awin_feeder_options['awin_user_id']; ?>" />
-                    <br/>
+		<form method="post" action="<?php echo $_SERVER['REQUEST_URI']; ?>">
+		<input type="hidden" name="update_awinfeeder" value="1" />
+		<table class="form-table">
+			<tbody>
+			<tr>
+                    		<th><label for="awin-user-id">AWIN User ID (used for merchant links)</label></th>
+				<td><input name="awin_user_id" type="text" id="awin-user-id" value="<?php echo $awin_feeder_options['awin_user_id']; ?>" /></td>
+			</tr>
+			<tr>
+                    		<th><label for="awin-api-key">AWIN API Key (used to fetch product and publisher data)</label></th>
+				<td><input name="awin_api_key" type="text" id="awin-api-key" value="<?php echo $awin_feeder_options['awin_api_key']; ?>" /></td>
+			</tr>
+			</tbody>
+		</table>
                     <input type="submit" value="Save" />
                 </form>
             </div>
