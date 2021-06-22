@@ -1,0 +1,18 @@
+{
+    "name": "odinshat/awin-feeder-wordpress-plugin",
+    "description": "Build Wordpress posts based on products from an Affiliate Window datafeed",
+    "type": "plugin",
+    "license": "BSD",
+    "autoload": {
+        "psr-4": {
+            "Odinshat\\AwinFeederWordpressPlugin\\": "src/"
+        }
+    },
+    "authors": [
+        {
+            "name": "Doug Bromley",
+            "email": "doug@tintophat.com"
+        }
+    ],
+    "require": {}
+}

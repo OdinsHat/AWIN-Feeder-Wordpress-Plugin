@@ -8,9 +8,10 @@
  * Copyright: Doug Bromley <doug@tintophat.com>
  * Author URI: http://www.tintophat.com
  *
+ * @category OdinsHat
  * @package AWIN-Feeder
  * @author  Doug Bromley <doug@tintophat.com>
- * @copyright Doug Bromley <doug@tintophat.com>
+ * @copyright 2021 Doug Bromley <doug@tintophat.com>
  * @license BSD
  *
  */
