@@ -16,7 +16,7 @@
  *
  */
 global $awinfeeder_db_version;
-$awinfeeder_db_version = "1.0";
+$awinfeeder_db_version = "1.1";
 
 
 /**

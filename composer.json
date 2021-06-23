@@ -14,5 +14,10 @@
             "email": "doug@tintophat.com"
         }
     ],
-    "require": {}
+    "require-dev": {
+        "tareq1988/wp-php-cs-fixer": "dev-master",
+        "roave/security-advisories": "dev-latest",
+        "vimeo/psalm": "^4.9",
+        "friendsofphp/php-cs-fixer": "^3.0"
+    }
 }
