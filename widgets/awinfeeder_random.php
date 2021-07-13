@@ -1,31 +1,29 @@
-<?php
+<?php declare(strict_types=1);
 /**
  * Class for the Random widget. Extends Wordpress' WP_Widget class to create
  * the admin interface and the frontend UI.
  *
- * @package AWIN-Feeder
  * @author Doug Bromley <doug@tintophat.com>
  */
-class AwinFeeder_Random extends WP_Widget
+class awinfeeder_random extends WP_Widget
 {
-    function __construct()
+    public function __construct()
     {
-        parent::WP_Widget('awinfeeder_random', 'AWIN Feeder Random', 'Display random products from the AWIN Feeder plugin');
+        parent::__construct('awinfeeder_random', 'AWIN Feeder Random', 'Display random products from the AWIN Feeder plugin');
     }
 
     /**
      * The extended widget method that plls together the data for the Cheap/Dear
      * Widget before outputing it by inclusion.
      *
-     * @param  array $args      Array arguments
-     * @param  array $instance Instance
-     * @return null
+     * @param array $args     Array arguments
+     * @param array $instance Instance
      */
     public function widget($args, $instance)
     {
         global $wpdb;
         $limit = 5;
-        $wheres = array();
+        $wheres = [];
         $where_stirng = '';
 
         extract($args);
@@ -56,8 +54,7 @@ class AwinFeeder_Random extends WP_Widget
     /**
      * Creates the admin interface for the widget.
      *
-     * @param  array $instance instance
-     * @return null
+     * @param array $instance instance
      */
     public function form($instance)
     {
@@ -65,10 +62,9 @@ class AwinFeeder_Random extends WP_Widget
         $count = 5;
         if ($instance) {
             $title = esc_attr($instance['title']);
-            $count = sprintf("%d", $instance['count']);
+            $count = sprintf('%d', $instance['count']);
             $brand = esc_attr($instance['brand']);
-        }
-        ?>
+        } ?>
         <p>
         <label for="<?php echo $this->get_field_id('title'); ?>"><?php _e('Title:'); ?></label>
         <input class="widefat" id="<?php echo $this->get_field_id('title'); ?>" name="<?php echo $this->get_field_name('title'); ?>" type="text" value="<?php echo $title; ?>" />
@@ -79,9 +75,8 @@ class AwinFeeder_Random extends WP_Widget
         </p>
         <?php
     }
-
 }
 
-add_action( 'widgets_init', create_function( '', 'register_widget("AwinFeeder_Random");' ) );
+add_action('widgets_init', create_function('', 'register_widget("AwinFeeder_Random");'));
 
 ?>
