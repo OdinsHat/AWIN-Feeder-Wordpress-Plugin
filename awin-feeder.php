@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  * Plugin Name: AWIN Feeder
  * Plugin URI: https://github.com/OdinsHat/AWIN-Feeder

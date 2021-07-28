@@ -14,5 +14,16 @@
             "email": "doug@tintophat.com"
         }
     ],
-    "require": {}
+    "require-dev": {
+        "friendsofphp/php-cs-fixer": "^3.0",
+        "vimeo/psalm": "^4.9"
+    },
+    "scripts": {
+        "fix": [
+            "vendor/bin/php-cs-fixer fix"
+        ],
+        "analyze": [
+            "vendor/bin/psalm --show-info=false"
+        ]
+    }
 }
