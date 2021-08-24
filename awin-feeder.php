@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  * Plugin Name: AWIN Feeder
  * Plugin URI: https://github.com/OdinsHat/AWIN-Feeder
@@ -24,7 +24,7 @@ $awinfeeder_db_version = '1.1';
  * Creates the product table if it doesn't
  * already exist.
  */
-function awinfeeder_install()
+function awinfeeder_install(): void
 {
     global $wpdb;
     global $awinfeeder_db_version;
@@ -79,7 +79,7 @@ if (!class_exists('AwinFeeder')) {
         /**
          * Initialises the plugin options.
          */
-        public function init()
+        public function init(): void
         {
             $this->getPluginOptions();
         }
@@ -256,7 +256,7 @@ if (!class_exists('AwinFeeder')) {
          *
          * @param array $data single product data
          */
-        public function insertProduct($data)
+        public function insertProduct($data): void
         {
             global $wpdb;
             $table = $wpdb->prefix.'afeeder_products';
@@ -305,7 +305,7 @@ if (!class_exists('AwinFeeder')) {
          *
          * Simply enables user to put their AWIN id in for use in links.
          */
-        public function printAdminPage()
+        public function printAdminPage(): void
         {
             $awin_feeder_options = $this->getPluginOptions();
             // If admin page has been submitted then...
@@ -335,7 +335,7 @@ if (!class_exists('AwinFeeder')) {
          * The upload form gives a description of the file format to upload
          * with a file form element.
          */
-        public function printUploadForm()
+        public function printUploadForm(): void
         {
             if (isset($_POST['upload_data'])) {
                 $target_path = ABSPATH.'wp-content/uploads/';
@@ -406,7 +406,7 @@ if (!class_exists('AwinFeeder')) {
         /**
          * Called via ajax call to delete a product from the database.
          */
-        public function delProduct()
+        public function delProduct(): void
         {
             global $wpdb;
 

@@ -14,7 +14,7 @@ class awinfeeder_cheapdear extends WP_Widget
      * @param array $args     Array arguments
      * @param array $instance Instance
      */
-    public function widget($args, $instance)
+    public function widget($args, $instance): void
     {
         global $wpdb;
         $limit = 5;
@@ -60,7 +60,7 @@ class awinfeeder_cheapdear extends WP_Widget
      *
      * @param array $instance instance
      */
-    public function form($instance)
+    public function form($instance): void
     {
         $title = 'Cheapest Products';
         $count = 5;

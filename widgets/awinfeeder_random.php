@@ -19,7 +19,7 @@ class awinfeeder_random extends WP_Widget
      * @param array $args     Array arguments
      * @param array $instance Instance
      */
-    public function widget($args, $instance)
+    public function widget($args, $instance): void
     {
         global $wpdb;
         $limit = 5;
@@ -56,7 +56,7 @@ class awinfeeder_random extends WP_Widget
      *
      * @param array $instance instance
      */
-    public function form($instance)
+    public function form($instance): void
     {
         $title = 'Random Products';
         $count = 5;
