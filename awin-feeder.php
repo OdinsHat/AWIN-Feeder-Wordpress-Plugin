@@ -15,6 +15,7 @@
  * @license BSD
  */
 global $awinfeeder_db_version;
+
 $awinfeeder_db_version = '1.1';
 
 /**
