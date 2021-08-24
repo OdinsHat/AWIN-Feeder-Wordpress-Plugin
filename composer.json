@@ -15,9 +15,15 @@
         }
     ],
     "require-dev": {
-        "tareq1988/wp-php-cs-fixer": "dev-master",
-        "roave/security-advisories": "dev-latest",
-        "vimeo/psalm": "^4.9",
-        "friendsofphp/php-cs-fixer": "^3.0"
+        "friendsofphp/php-cs-fixer": "^3.0",
+        "vimeo/psalm": "^4.9"
+    },
+    "scripts": {
+        "fix": [
+            "vendor/bin/php-cs-fixer fix"
+        ],
+        "analyze": [
+            "vendor/bin/psalm --show-info=false"
+        ]
     }
 }
