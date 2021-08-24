@@ -1,29 +1,29 @@
 {
-    "name": "odinshat/awin-feeder-wordpress-plugin",
-    "description": "Build Wordpress posts based on products from an Affiliate Window datafeed",
-    "type": "plugin",
-    "license": "BSD",
-    "autoload": {
-        "psr-4": {
-            "Odinshat\\AwinFeederWordpressPlugin\\": "src/"
-        }
-    },
-    "authors": [
-        {
-            "name": "Doug Bromley",
-            "email": "doug@tintophat.com"
-        }
-    ],
-    "require-dev": {
-        "friendsofphp/php-cs-fixer": "^3.0",
-        "vimeo/psalm": "^4.9"
-    },
-    "scripts": {
-        "fix": [
-            "vendor/bin/php-cs-fixer fix"
-        ],
-        "analyze": [
-            "vendor/bin/psalm --show-info=false"
-        ]
+  "name": "odinshat/awin-feeder-wordpress-plugin",
+  "description": "Build Wordpress posts based on products from an Affiliate Window datafeed",
+  "type": "plugin",
+  "license": "BSD",
+  "autoload": {
+    "psr-4": {
+      "Odinshat\\AwinFeederWordpressPlugin\\": "src/"
     }
+  },
+  "authors": [
+    {
+      "name": "Doug Bromley",
+      "email": "doug@tintophat.com"
+    }
+  ],
+  "require-dev": {
+    "friendsofphp/php-cs-fixer": "^3.0",
+    "vimeo/psalm": "^4.9"
+  },
+  "scripts": {
+    "fix": [
+      "vendor/bin/php-cs-fixer fix"
+    ],
+    "analyze": [
+      "vendor/bin/psalm --show-info=false"
+    ]
+  }
 }
