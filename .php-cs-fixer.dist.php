@@ -6,6 +6,7 @@ $finder = PhpCsFixer\Finder::create()
     ->exclude('vendors')
     ->in(__DIR__)
     ->append([
+
         __FILE__,
     ])
 ;
