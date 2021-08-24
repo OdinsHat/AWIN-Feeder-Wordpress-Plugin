@@ -2,3 +2,5 @@ uploads/*
 .idea/
 *.cache
 /vendor/
+.php-cs-fixer.cache
+composer.lock

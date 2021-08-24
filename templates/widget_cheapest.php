@@ -1,5 +1,5 @@
 <ul style="list-style:none;">
-<?php foreach($rows as $row): ?>
+<?php foreach ($rows as $row) { ?>
 <?php $name_parts = explode(' ', $row->name); ?>
     <li>
         <a href="/hopo/<?php echo $row->id; ?>">
@@ -9,5 +9,5 @@
         <div style="margin:0px;padding:0px;">&pound;<?php echo $row->price; ?></div>
         <div style="clear:both;"></div>
     </li>
-<?php endforeach; ?>
+<?php } ?>
 </ul>

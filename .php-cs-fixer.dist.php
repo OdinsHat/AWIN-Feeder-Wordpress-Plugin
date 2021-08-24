@@ -2,26 +2,11 @@
 
 declare(strict_types=1);
 
-/*
- * This file is part of Tyre Label Generator.
- * (c) Doug Bromley <doug@tintophat.com>
- * This source file is subject to the BSD license that is bundled
- * with this source code in the file LICENSE.
- */
-
-$header = <<<'EOF'
-This file is part of Tyre Label Generator.
-(c) Doug Bromley <doug@tintophat.com>
-This source file is subject to the BSD license that is bundled
-with this source code in the file LICENSE.
-EOF;
-
 $finder = PhpCsFixer\Finder::create()
-    ->exclude('tests/Fixtures')
-    ->in(__DIR__.'/src')
+    ->exclude('vendors')
+    ->in(__DIR__)
     ->append([
-        __DIR__.'/tests',
-        // __DIR__.'/php-cs-fixer', disabled, as we want to be able to run bootstrap file even on lower PHP version, to show nice message
+
         __FILE__,
     ])
 ;
@@ -30,13 +15,11 @@ $config = new PhpCsFixer\Config();
 $config
     ->setRiskyAllowed(true)
     ->setRules([
-        '@PHP71Migration:risky' => false,
-        '@PHPUnit75Migration:risky' => false,
+        '@PHP71Migration:risky' => true,
+        '@PHPUnit75Migration:risky' => true,
         '@PhpCsFixer' => true,
-        '@PhpCsFixer:risky' => false,
-        'general_phpdoc_annotation_remove' => ['annotations' => ['expectedDeprecation']], // one should use PHPUnit built-in method instead
-        'strict_param' => false,
-        '@PSR2' => true,
+        '@PhpCsFixer:risky' => true,
+        'general_phpdoc_annotation_remove' => ['annotations' => ['expectedDeprecation']],
     ])
     ->setFinder($finder)
 ;
